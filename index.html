@@ -152,6 +152,7 @@
       const fileInputRef = useRef(null);
       const [activeAction, setActiveAction] = useState(null);
       const [startPoint, setStartPoint] = useState({ x: 0, y: 0, w: 0, h: 0 });
+      const [viewportWidth, setViewportWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1280);
 
       useEffect(() => {
         const savedSession = localStorage.getItem('prorutinas_session_v1');
@@ -179,6 +180,12 @@
         }, 400);
         return () => clearTimeout(timer);
       }, [patientData, days, config, cloudExercises, savedRoutines]);
+
+      useEffect(() => {
+        const onResize = () => setViewportWidth(window.innerWidth);
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+      }, []);
 
       const handlePointerDown = (e, block, type) => {
         if (!editMode) return;
@@ -339,29 +346,31 @@
       };
 
       const saveBadge = saveStatus === 'saved' ? 'Guardado' : saveStatus === 'saving' ? 'Guardando' : 'Autosave local';
+      const isMobile = viewportWidth < 768;
+      const autoScale = isMobile ? Math.min(0.55, Math.max(0.28, (viewportWidth - 22) / 1122)) : config.pageScale / 100;
 
       return (
         <div className="min-h-screen flex relative overflow-hidden" style={{ backgroundColor: config.style.appBg }} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}>
-          <div className="fixed left-6 top-6 z-[700] print:hidden bg-white/90 backdrop-blur rounded-full border border-zinc-200 px-4 py-2 text-xs font-bold uppercase tracking-wide text-zinc-600 shadow">
+          <div className="fixed left-3 top-3 md:left-6 md:top-6 z-[700] print:hidden bg-white/90 backdrop-blur rounded-full border border-zinc-200 px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs font-bold uppercase tracking-wide text-zinc-600 shadow">
             {saveBadge}
           </div>
 
-          <div className="fixed right-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-4 z-[500] print:hidden">
-            <button onClick={() => { setEditMode(!editMode); setLabMode(false); }} className={`w-16 h-16 rounded-full shadow-xl flex items-center justify-center border-4 transition-all ${editMode ? 'bg-teal-500 border-white text-white' : 'bg-white border-zinc-100 text-zinc-600'}`}>Mover</button>
-            <button onClick={() => { setLabMode(!labMode); setEditMode(false); }} className={`w-16 h-16 rounded-full shadow-xl flex items-center justify-center border-4 transition-all ${labMode ? 'bg-amber-500 border-white text-white' : 'bg-white border-zinc-100 text-zinc-600'}`}>Diseño</button>
-            <div className="flex flex-col bg-white rounded-3xl shadow-xl border border-zinc-100 overflow-hidden">
+          <div className="fixed bottom-3 left-1/2 -translate-x-1/2 md:left-auto md:right-6 md:top-1/2 md:-translate-y-1/2 md:translate-x-0 flex flex-row md:flex-col items-center gap-2 md:gap-4 z-[500] print:hidden bg-white/70 md:bg-transparent backdrop-blur-xl md:backdrop-blur-0 p-2 md:p-0 rounded-2xl md:rounded-none border border-zinc-200/70 md:border-none">
+            <button onClick={() => { setEditMode(!editMode); setLabMode(false); }} className={`w-11 h-11 md:w-16 md:h-16 text-[11px] md:text-sm rounded-2xl md:rounded-full shadow-lg md:shadow-xl flex items-center justify-center border-2 md:border-4 transition-all ${editMode ? 'bg-teal-500 border-white text-white' : 'bg-white border-zinc-100 text-zinc-600'}`}>Mover</button>
+            <button onClick={() => { setLabMode(!labMode); setEditMode(false); }} className={`w-11 h-11 md:w-16 md:h-16 text-[11px] md:text-sm rounded-2xl md:rounded-full shadow-lg md:shadow-xl flex items-center justify-center border-2 md:border-4 transition-all ${labMode ? 'bg-amber-500 border-white text-white' : 'bg-white border-zinc-100 text-zinc-600'}`}>Diseño</button>
+            <div className="hidden md:flex flex-col bg-white rounded-3xl shadow-xl border border-zinc-100 overflow-hidden">
               {[100, 75, 50].map(s => (
                 <button key={s} onClick={() => setConfig({ ...config, pageScale: s })} className={`w-14 h-12 text-xs font-black border-b last:border-b-0 ${config.pageScale === s ? 'bg-teal-500 text-white' : 'text-zinc-500 bg-white'}`}>{s}%</button>
               ))}
             </div>
-            <button onClick={() => setAssetsOpen(true)} className="w-16 h-16 bg-white rounded-full shadow-xl border border-zinc-100 text-zinc-600">Recursos</button>
-            <button onClick={() => window.print()} className="w-16 h-16 bg-white rounded-full shadow-xl border border-zinc-100 text-zinc-600">PDF</button>
-            <button onClick={handleReset} className="w-16 h-16 bg-white rounded-full shadow-xl border border-zinc-100 text-zinc-600">Reset</button>
+            <button onClick={() => setAssetsOpen(true)} className="w-11 h-11 md:w-16 md:h-16 text-[11px] md:text-sm bg-white rounded-2xl md:rounded-full shadow-lg md:shadow-xl border border-zinc-100 text-zinc-600">Recursos</button>
+            <button onClick={() => window.print()} className="w-11 h-11 md:w-16 md:h-16 text-[11px] md:text-sm bg-white rounded-2xl md:rounded-full shadow-lg md:shadow-xl border border-zinc-100 text-zinc-600">PDF</button>
+            <button onClick={handleReset} className="w-11 h-11 md:w-16 md:h-16 text-[11px] md:text-sm bg-white rounded-2xl md:rounded-full shadow-lg md:shadow-xl border border-zinc-100 text-zinc-600">Reset</button>
           </div>
 
           {labMode && (
-            <div className="fixed left-6 top-1/2 -translate-y-1/2 w-96 bg-black/95 backdrop-blur-3xl border border-teal-400/30 rounded-[2rem] p-8 z-[600] shadow-2xl text-white overflow-y-auto max-h-[95vh] scrollbar-hide print:hidden">
-              <h3 className="font-black text-2xl uppercase tracking-tight mb-8">Diseño total</h3>
+            <div className="fixed left-3 right-3 md:left-6 md:right-auto top-16 md:top-1/2 md:-translate-y-1/2 w-auto md:w-96 bg-black/95 backdrop-blur-3xl border border-teal-400/30 rounded-[1.5rem] md:rounded-[2rem] p-4 md:p-8 z-[600] shadow-2xl text-white overflow-y-auto max-h-[78vh] md:max-h-[95vh] scrollbar-hide print:hidden">
+              <h3 className="font-black text-lg md:text-2xl uppercase tracking-tight mb-6 md:mb-8">Diseño total</h3>
               <div className="space-y-8">
                 <div className="space-y-4 bg-white/5 p-5 rounded-[1.5rem]">
                   <div className="text-xs font-black text-amber-400 uppercase">Layout</div>
@@ -389,8 +398,8 @@
             </div>
           )}
 
-          <div className="flex-grow flex flex-col items-center overflow-auto py-20 px-10 scrollbar-hide">
-            <div className="origin-top transition-all duration-300" style={{ transform: `scale(${config.pageScale / 100})` }}>
+          <div className="flex-grow flex flex-col items-center overflow-auto pt-14 pb-28 md:py-20 px-2 md:px-10 scrollbar-hide">
+            <div className="origin-top transition-all duration-300" style={{ transform: `scale(${autoScale})` }}>
               <div className="bg-white shadow-[0_40px_130px_-20px_rgba(0,0,0,0.18)] overflow-hidden print:shadow-none relative rounded-sm" style={{ width: '297mm', minHeight: '210mm', backgroundColor: config.style.sheetBg }}>
                 <div className="h-8 w-full bg-stripes opacity-10"></div>
                 <div className="px-16 pt-12 pb-16 relative min-h-[1050px]">
@@ -510,20 +519,20 @@
           </div>
 
           {assetsOpen && (
-            <div className="fixed inset-0 bg-black/90 z-[1000] flex items-center justify-center p-6 backdrop-blur-3xl print:hidden">
-              <div className="bg-white w-full max-w-6xl h-[90vh] rounded-[3rem] border-4 border-black flex flex-col relative">
-                <div className="bg-teal-500 p-8 text-white flex justify-between items-center shrink-0 border-b-4 border-black">
-                  <div className="flex gap-8 flex-wrap">
+            <div className="fixed inset-0 bg-black/90 z-[1000] flex items-end md:items-center justify-center p-2 md:p-6 backdrop-blur-3xl print:hidden">
+              <div className="bg-white w-full max-w-6xl h-[92vh] md:h-[90vh] rounded-t-[1.5rem] md:rounded-[3rem] border-2 md:border-4 border-black flex flex-col relative">
+                <div className="bg-teal-500 p-4 md:p-8 text-white flex justify-between items-center shrink-0 border-b-2 md:border-b-4 border-black">
+                  <div className="flex gap-3 md:gap-8 flex-wrap">
                     {['library', 'templates', 'saved'].map(t => (
-                      <button key={t} onClick={() => setAssetTab(t)} className={`font-black text-2xl uppercase tracking-tight ${assetTab === t ? 'underline underline-offset-8' : 'opacity-60'}`}>
+                      <button key={t} onClick={() => setAssetTab(t)} className={`font-black text-sm md:text-2xl uppercase tracking-tight ${assetTab === t ? 'underline underline-offset-4 md:underline-offset-8' : 'opacity-60'}`}>
                         {t === 'templates' ? 'Plantillas' : t === 'library' ? 'Biblioteca' : 'Guardadas'}
                       </button>
                     ))}
                   </div>
-                  <button onClick={() => setAssetsOpen(false)} className="bg-black/20 px-5 py-3 rounded-full">Cerrar</button>
+                  <button onClick={() => setAssetsOpen(false)} className="bg-black/20 px-3 py-2 md:px-5 md:py-3 rounded-full text-xs md:text-base">Cerrar</button>
                 </div>
 
-                <div className="flex-grow overflow-y-auto p-10 bg-white pb-28">
+                <div className="flex-grow overflow-y-auto p-4 md:p-10 bg-white pb-28">
                   {assetTab === 'library' && (
                     <div className="space-y-10">
                       <div className="p-4 bg-zinc-50 rounded-full border border-zinc-200 flex items-center gap-4">
@@ -568,7 +577,7 @@
                           </div>
                         </div>
                       ))}
-                      <button onClick={() => setLibraryEditMode(!libraryEditMode)} className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-black text-white px-10 py-5 rounded-full font-black uppercase shadow-2xl z-[1001]">
+                      <button onClick={() => setLibraryEditMode(!libraryEditMode)} className="fixed bottom-24 md:bottom-10 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-3 md:px-10 md:py-5 text-xs md:text-base rounded-full font-black uppercase shadow-2xl z-[1001]">
                         {libraryEditMode ? 'Cerrar edición' : 'Editar biblioteca'}
                       </button>
                     </div>
@@ -609,16 +618,16 @@
           )}
 
           {selectorOpen && (
-            <div className="fixed inset-0 bg-black/85 z-[1100] flex items-center justify-center p-6 backdrop-blur-3xl print:hidden">
-              <div className="bg-white w-full max-w-4xl h-[80vh] rounded-[3rem] border-4 border-black flex flex-col">
-                <div className="p-8 bg-zinc-900 text-white flex justify-between items-center shrink-0">
-                  <h3 className="font-black text-3xl uppercase tracking-tight">Elegir ejercicio</h3>
-                  <button onClick={() => { setSelectorOpen(null); setSearchTerm(''); }} className="px-5 py-3 bg-white/10 rounded-full">Cerrar</button>
+            <div className="fixed inset-0 bg-black/85 z-[1100] flex items-end md:items-center justify-center p-2 md:p-6 backdrop-blur-3xl print:hidden">
+              <div className="bg-white w-full max-w-4xl h-[88vh] md:h-[80vh] rounded-t-[1.5rem] md:rounded-[3rem] border-2 md:border-4 border-black flex flex-col">
+                <div className="p-4 md:p-8 bg-zinc-900 text-white flex justify-between items-center shrink-0">
+                  <h3 className="font-black text-base md:text-3xl uppercase tracking-tight">Elegir ejercicio</h3>
+                  <button onClick={() => { setSelectorOpen(null); setSearchTerm(''); }} className="px-3 py-2 md:px-5 md:py-3 bg-white/10 rounded-full text-xs md:text-base">Cerrar</button>
                 </div>
-                <div className="p-6 bg-zinc-50 border-b border-black/5 flex items-center gap-4 shrink-0">
-                  <input type="text" placeholder="Buscar por nombre..." className="bg-transparent outline-none w-full text-xl font-black uppercase text-teal-500" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} autoFocus />
+                <div className="p-4 md:p-6 bg-zinc-50 border-b border-black/5 flex items-center gap-4 shrink-0">
+                  <input type="text" placeholder="Buscar por nombre..." className="bg-transparent outline-none w-full text-base md:text-xl font-black uppercase text-teal-500" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} autoFocus />
                 </div>
-                <div className="flex-grow overflow-y-auto p-10 bg-white pb-20">
+                <div className="flex-grow overflow-y-auto p-4 md:p-10 bg-white pb-20">
                   {Object.entries(fullLibrary).map(([cat, ejercicios]) => {
                     const filtered = ejercicios.filter(ex => ex.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
                     if (filtered.length === 0) return null;
