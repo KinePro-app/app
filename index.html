@@ -1,1328 +1,263 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>KINEPRO</title>
-  <meta name="description" content="KINEPRO · Gestión clínica de pacientes, rutinas y sesiones de rehabilitación" />
-  <style>
-    :root{
-      --bg:#07101b;
-      --bg-2:#0b1420;
-      --panel:#111a25;
-      --panel-2:#161f2b;
-      --card:#1a222e;
-      --card-2:#202938;
-      --line:rgba(255,255,255,.08);
-      --line-2:rgba(100,255,205,.18);
-      --text:#eef3f7;
-      --muted:#9ba7b4;
-      --muted-2:#718090;
-      --accent:#53efb9;
-      --accent-2:#21c58f;
-      --accent-soft:rgba(83,239,185,.14);
-      --warning:#ffb84d;
-      --danger:#c93244;
-      --danger-2:#920f1f;
-      --shadow:0 14px 40px rgba(0,0,0,.34);
-      --radius:22px;
-      --radius-sm:16px;
-      --nav-h:94px;
-      --top-safe: max(18px, env(safe-area-inset-top));
-      --bottom-safe: max(18px, env(safe-area-inset-bottom));
-      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{
-      margin:0;
-      font-family:var(--font);
-      color:var(--text);
-      background:
-        radial-gradient(circle at top, rgba(83,239,185,.08), transparent 28%),
-        linear-gradient(180deg, #06101a 0%, #08101b 35%, #040b14 100%);
-      overflow-x:hidden;
-      overflow-y:auto;
-    }
-
-    button,input,textarea,select{font:inherit}
-    button{cursor:pointer;border:none;background:none;color:inherit}
-    input,textarea,select{outline:none}
-
-    .app{
-      width:100%;
-      max-width:520px;
-      margin:0 auto;
-      min-height:100dvh;
-      height:100dvh;
-      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
-      position:relative;
-      overflow:hidden;
-      border-left:1px solid rgba(255,255,255,.03);
-      border-right:1px solid rgba(255,255,255,.03);
-    }
-
-    .screen{
-      height:100%;
-      overflow-y:auto;
-      overflow-x:hidden;
-      -webkit-overflow-scrolling:touch;
-      padding:var(--top-safe) 16px calc(var(--nav-h) + 28px + var(--bottom-safe));
-      display:none;
-      scroll-behavior:smooth;
-    }
-    .screen.active{display:block}
-    .screen::-webkit-scrollbar{width:0;height:0}
-    .sheet::-webkit-scrollbar{width:0;height:0}
-
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:18px;
-    }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width:0;
-    }
-    .avatar{
-      width:44px;height:44px;border-radius:50%;
-      display:grid;place-items:center;
-      background:linear-gradient(180deg, #2a323e, #1a2029);
-      color:var(--accent);
-      border:1px solid rgba(255,255,255,.06);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
-      flex:0 0 auto;
-    }
-    .brand h1,.brand h2,.brand h3,.brand p{margin:0}
-    .brand-mark{font-size:1.9rem;letter-spacing:.15em;font-weight:800;color:var(--accent)}
-    .brand-stack{min-width:0}
-    .eyebrow{color:var(--muted);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase}
-    .title{font-size:1.35rem;font-weight:800;line-height:1.15;margin-top:2px}
-    .subtitle{color:var(--muted);font-size:.92rem;margin-top:5px}
-    .icon-btn{
-      width:44px;height:44px;border-radius:16px;
-      background:rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.06);
-      display:grid;place-items:center;
-      flex:0 0 auto;
-    }
-
-    .hero{
-      padding:18px;
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border:1px solid var(--line);
-      border-radius:26px;
-      box-shadow:var(--shadow);
-      position:relative;
-      overflow:hidden;
-      margin-bottom:18px;
-    }
-    .hero::before{
-      content:"";
-      position:absolute;inset:auto -40px -55px auto;
-      width:160px;height:160px;border-radius:50%;
-      background:radial-gradient(circle, rgba(83,239,185,.22), transparent 68%);
-      pointer-events:none;
-    }
-    .hero .small{font-size:.76rem;color:#b7c3cd;text-transform:uppercase;letter-spacing:.14em;margin-bottom:8px}
-    .hero .main{font-size:1.55rem;font-weight:800;line-height:1.08;max-width:240px}
-    .hero .meta{margin-top:8px;color:var(--muted);font-size:.95rem;line-height:1.4;max-width:270px}
-    .hero-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-
-    .grid-3,.grid-2,.grid-4{display:grid;gap:12px}
-    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
-    .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
-    .grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}
-
-    .stat{
-      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
-      border:1px solid var(--line);
-      border-radius:20px;
-      padding:14px;
-      min-height:98px;
-      display:flex;flex-direction:column;justify-content:space-between;
-    }
-    .stat .label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#a6b1bc}
-    .stat .value{font-size:1.6rem;font-weight:800;line-height:1;color:#fff}
-    .stat .delta{font-size:.82rem;color:var(--accent)}
-
-    .section-head{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      margin:22px 0 12px;
-    }
-    .section-title{font-size:1.05rem;font-weight:800;letter-spacing:.02em}
-    .section-link{font-size:.86rem;color:var(--accent);font-weight:700}
-
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border:1px solid var(--line);
-      border-radius:24px;
-      padding:16px;
-      box-shadow:var(--shadow);
-    }
-    .session-card{
-      padding:16px;
-      border-radius:24px;
-      border:1px solid var(--line-2);
-      background:linear-gradient(180deg, rgba(83,239,185,.08), rgba(255,255,255,.03));
-      margin-bottom:12px;
-    }
-    .row{display:flex;align-items:center;gap:12px}
-    .between{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .stack{display:flex;flex-direction:column;gap:6px;min-width:0}
-    .muted{color:var(--muted)}
-    .muted-2{color:var(--muted-2)}
-    .strong{font-weight:800}
-    .badge{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:8px 12px;border-radius:999px;
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.06);
-      font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#dde7ee;
-      white-space:nowrap;
-    }
-    .badge.active{background:rgba(83,239,185,.12);border-color:rgba(83,239,185,.22);color:var(--accent)}
-    .badge.paused{background:rgba(255,184,77,.12);border-color:rgba(255,184,77,.2);color:var(--warning)}
-    .badge.template{background:rgba(93,112,255,.12);border-color:rgba(93,112,255,.2);color:#aab4ff}
-    .session-time{font-size:2.4rem;font-weight:900;letter-spacing:.03em}
-    .mini-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-
-    .quick-btn, .primary-btn, .secondary-btn, .danger-btn, .ghost-btn {
-      border-radius:18px;
-      padding:15px 16px;
-      font-weight:800;
-      letter-spacing:.03em;
-      min-height:54px;
-      display:flex;align-items:center;justify-content:center;gap:10px;
-      transition:.18s ease;
-    }
-    .quick-btn{
-      background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.03));
-      border:1px solid rgba(255,255,255,.07);
-      text-align:left;justify-content:flex-start;
-      padding:14px;
-      min-height:94px;
-      align-items:flex-start;
-      flex-direction:column;
-      box-shadow:var(--shadow);
-    }
-    .quick-btn .k{width:38px;height:38px;border-radius:12px;background:rgba(83,239,185,.13);display:grid;place-items:center;color:var(--accent)}
-    .quick-btn .t{font-size:1rem;font-weight:800}
-    .quick-btn .s{font-size:.85rem;color:var(--muted)}
-    .primary-btn{
-      background:linear-gradient(180deg, var(--accent), var(--accent-2));
-      color:#04110d;
-      box-shadow:0 8px 24px rgba(83,239,185,.24);
-    }
-    .secondary-btn{
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.08);
-      color:#e8eef4;
-    }
-    .danger-btn{
-      background:linear-gradient(180deg, var(--danger), var(--danger-2));
-      color:#ffe8eb;
-      box-shadow:0 8px 24px rgba(201,50,68,.22);
-    }
-    .ghost-btn{
-      background:transparent;
-      border:1px dashed rgba(255,255,255,.16);
-      color:var(--muted);
-    }
-
-    .searchbar{
-      display:flex;align-items:center;gap:12px;
-      min-height:58px;
-      border-radius:18px;
-      background:rgba(255,255,255,.045);
-      border:1px solid rgba(255,255,255,.07);
-      padding:0 14px;
-      margin-bottom:16px;
-      width:100%;
-    }
-    .searchbar input{
-      background:transparent;border:none;color:var(--text);
-      width:100%;font-size:1rem;
-    }
-    .searchbar input::placeholder{color:#8895a2}
-
-    .segmented{
-      display:flex;gap:10px;overflow:auto;padding-bottom:4px;
-      margin-bottom:14px;
-    }
-    .segmented::-webkit-scrollbar{display:none}
-    .seg-btn{
-      flex:0 0 auto;
-      padding:12px 16px;
-      border-radius:16px;
-      background:rgba(255,255,255,.045);
-      border:1px solid rgba(255,255,255,.06);
-      color:#dbe4eb;font-weight:800;font-size:.9rem;
-    }
-    .seg-btn.active{background:var(--accent-soft);border-color:rgba(83,239,185,.26);color:var(--accent)}
-
-    .filter-row{display:flex;gap:10px;overflow:auto;padding-bottom:2px;margin-bottom:14px}
-    .chip{
-      flex:0 0 auto;
-      padding:10px 14px;
-      border-radius:999px;
-      background:rgba(255,255,255,.045);
-      border:1px solid rgba(255,255,255,.06);
-      color:#dfe7ee;font-size:.86rem;font-weight:700;
-    }
-    .chip.active{background:var(--accent);color:#02120b;border-color:transparent}
-
-    .routine-card,.patient-card,.exercise-item,.detail-card{
-      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
-      border:1px solid rgba(255,255,255,.07);
-      border-radius:22px;
-      padding:16px;
-      margin-bottom:12px;
-    }
-    .routine-card .head,.patient-card .head,.exercise-item .head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-    .routine-title,.patient-name,.exercise-name{font-size:1.08rem;font-weight:800;line-height:1.2}
-    .mini{font-size:.84rem;color:var(--muted)}
-    .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .tag{
-      font-size:.72rem;
-      text-transform:uppercase;
-      letter-spacing:.06em;
-      padding:7px 10px;
-      border-radius:10px;
-      background:rgba(255,255,255,.05);
-      color:#cbd5df;
-      border:1px solid rgba(255,255,255,.06);
-    }
-    .routine-actions,.patient-actions,.exercise-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-    .action-pill{
-      padding:10px 12px;
-      border-radius:12px;
-      font-size:.82rem;
-      font-weight:800;
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.06);
-      color:#ecf2f8;
-    }
-    .action-pill.start{background:rgba(83,239,185,.12);border-color:rgba(83,239,185,.25);color:var(--accent)}
-    .action-pill.delete{background:rgba(201,50,68,.1);border-color:rgba(201,50,68,.18);color:#ffb6be}
-
-    .form-card{
-      padding:16px;
-      border-radius:24px;
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border:1px solid rgba(255,255,255,.07);
-      margin-bottom:14px;
-    }
-    .field{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-    .field:last-child{margin-bottom:0}
-    .label{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:#b1bcc6;font-weight:800}
-    .input,.textarea,.select{
-      width:100%;
-      min-height:52px;
-      border-radius:16px;
-      background:#232c39;
-      border:1px solid rgba(255,255,255,.06);
-      color:var(--text);
-      padding:14px 14px;
-      font-size:1rem;
-    }
-    .textarea{min-height:98px;resize:none}
-    .inline-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-
-    .block-card{
-      border-radius:22px;
-      padding:16px;
-      border:1px solid rgba(83,239,185,.18);
-      background:linear-gradient(180deg, rgba(83,239,185,.08), rgba(255,255,255,.02));
-      margin-bottom:14px;
-    }
-    .exercise-compact{
-      border-radius:18px;
-      padding:14px;
-      background:rgba(15,20,28,.74);
-      border:1px solid rgba(255,255,255,.06);
-      margin-top:12px;
-    }
-    .exercise-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
-    .metric{
-      border-radius:14px;
-      padding:10px 8px;
-      background:#2a3442;
-      border:1px solid rgba(255,255,255,.06);
-      text-align:center;
-    }
-    .metric .m-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:#acb7c3}
-    .metric .m-value{margin-top:6px;font-weight:800;font-size:1rem}
-
-    .library-list{margin-top:8px}
-    .library-item{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      padding:14px;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.06);
-      background:rgba(255,255,255,.03);
-      margin-bottom:10px;
-    }
-    .library-item .l-main{min-width:0}
-    .library-item .l-main .name{font-weight:800}
-    .library-item .l-main .meta{font-size:.83rem;color:var(--muted);margin-top:4px}
-    .plus-btn{
-      width:38px;height:38px;border-radius:12px;
-      background:rgba(83,239,185,.12);
-      border:1px solid rgba(83,239,185,.24);
-      color:var(--accent);
-      display:grid;place-items:center;
-      font-size:1.15rem;
-      flex:0 0 auto;
-    }
-
-    .timer-panel{
-      text-align:center;
-      padding:18px;
-      border-radius:26px;
-      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
-      border:1px solid rgba(255,255,255,.07);
-      box-shadow:var(--shadow);
-      margin-bottom:16px;
-    }
-    .timer-panel .timer-label{font-size:.78rem;text-transform:uppercase;letter-spacing:.16em;color:#b6c0ca}
-    .digital{
-      font-size:4.2rem;
-      line-height:1;
-      margin:12px 0 10px;
-      font-weight:900;
-      letter-spacing:.02em;
-      background:linear-gradient(180deg, #eff7fb, #57ebb7);
-      -webkit-background-clip:text;
-      background-clip:text;
-      color:transparent;
-    }
-    .progress-wrap{margin:14px 0 0}
-    .progress-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:10px}
-    .progress-bar{
-      width:100%;height:9px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;
-    }
-    .progress-bar > span{
-      display:block;height:100%;border-radius:999px;background:linear-gradient(90deg, var(--accent), var(--accent-2));width:60%;
-    }
-
-    .exec-item{
-      border-radius:22px;
-      border:1px solid rgba(255,255,255,.07);
-      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
-      padding:14px;
-      margin-bottom:12px;
-    }
-    .exec-item.completed{border-color:rgba(83,239,185,.22);background:linear-gradient(180deg, rgba(83,239,185,.09), rgba(255,255,255,.02))}
-    .check{
-      width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.22);
-      display:grid;place-items:center;flex:0 0 auto;color:transparent;font-size:.85rem;font-weight:900;
-    }
-    .exec-item.completed .check{background:var(--accent);color:#032216;border-color:transparent}
-    .note-box{
-      margin-top:12px;
-      border-radius:16px;
-      padding:12px;
-      background:#242e3b;
-      color:#c6d1da;
-      font-size:.94rem;
-      border:1px solid rgba(255,255,255,.06);
-    }
-    .footer-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
-    .footer-actions.single{grid-template-columns:1fr}
-
-    .patient-card .avatar-sm{
-      width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-weight:900;
-      background:rgba(83,239,185,.12);color:var(--accent);border:1px solid rgba(83,239,185,.18)
-    }
-    .detail-list{display:grid;gap:10px}
-    .detail-row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-    .detail-row .k{color:#aab6c2;font-size:.88rem}
-    .detail-row .v{text-align:right;font-weight:700;max-width:62%}
-
-    .menu-list{display:grid;gap:12px}
-    .menu-item{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      border-radius:20px;padding:16px;
-      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
-      border:1px solid rgba(255,255,255,.07);
-      box-shadow:var(--shadow);
-    }
-    .menu-item .left{display:flex;align-items:center;gap:12px;min-width:0}
-    .menu-item .ico{width:42px;height:42px;border-radius:14px;background:rgba(83,239,185,.12);color:var(--accent);display:grid;place-items:center;border:1px solid rgba(83,239,185,.18)}
-    .menu-item .m-title{font-weight:800}
-    .menu-item .m-sub{font-size:.86rem;color:var(--muted);margin-top:4px}
-
-    .bottom-nav{
-      position:absolute;
-      left:0;right:0;bottom:0;
-      height:calc(var(--nav-h) + var(--bottom-safe));
-      padding:8px 8px calc(10px + var(--bottom-safe));
-      background:linear-gradient(180deg, rgba(14,19,27,.82), rgba(20,26,37,.96));
-      backdrop-filter:blur(18px);
-      border-top:1px solid rgba(255,255,255,.08);
-      display:grid;
-      grid-template-columns:repeat(5,minmax(0,1fr));
-      gap:4px;
-      z-index:70;
-    }
-    .nav-btn{
-      min-width:0;
-      border-radius:16px;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-      color:#8f9baa;
-      font-size:.58rem;line-height:1.05;text-transform:uppercase;letter-spacing:.04em;font-weight:800;
-      padding:4px 2px;
-      text-align:center;
-      word-break:break-word;
-      overflow:hidden;
-    }
-    .nav-btn .nav-ico{width:22px;height:22px;display:grid;place-items:center;flex:0 0 auto}
-    .nav-btn span:last-child{display:block;max-width:100%}
-    .nav-btn.active{color:var(--accent)}
-
-    .fab{
-      position:fixed;
-      right:calc(18px + (100vw - min(100vw,520px))/2);
-      bottom:calc(var(--nav-h) + 22px + var(--bottom-safe));
-      width:58px;height:58px;border-radius:20px;
-      background:linear-gradient(180deg, var(--accent), var(--accent-2));
-      color:#04110d;
-      display:grid;place-items:center;
-      box-shadow:0 14px 30px rgba(83,239,185,.28);
-      z-index:62;
-      border:none;
-    }
-
-    .modal-backdrop{
-      position:absolute;inset:0;background:rgba(3,7,12,.66);backdrop-filter:blur(8px);
-      display:none;align-items:flex-end;z-index:90;
-    }
-    .modal-backdrop.open{display:flex}
-    .sheet{
-      width:100%;max-height:88dvh;overflow-y:auto;overflow-x:hidden;
-      -webkit-overflow-scrolling:touch;
-      border-radius:28px 28px 0 0;
-      padding:14px 18px calc(18px + var(--bottom-safe));
-      background:linear-gradient(180deg, #101925, #0c131c);
-      border-top:1px solid rgba(255,255,255,.08);
-      box-shadow:0 -18px 40px rgba(0,0,0,.4);
-    }
-    .grabber{width:54px;height:5px;border-radius:999px;background:rgba(255,255,255,.14);margin:4px auto 14px}
-
-    .library-list{padding-bottom:6px}
-    .library-item{align-items:flex-start}
-    .library-item .l-main .name{line-height:1.2}
-    .library-item .l-main .meta{line-height:1.35}
-    .hidden{display:none !important}
-
-    @media (max-width: 420px){
-      .title{font-size:1.18rem}
-      .subtitle{font-size:.85rem}
-      .hero .main{font-size:1.32rem;max-width:none}
-      .hero .meta{font-size:.88rem;max-width:none}
-      .grid-3{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-      .stat{padding:12px;min-height:88px}
-      .stat .label{font-size:.64rem}
-      .stat .value{font-size:1.32rem}
-      .grid-2{grid-template-columns:1fr 1fr;gap:10px}
-      .quick-btn{min-height:88px;padding:12px}
-      .quick-btn .t{font-size:.92rem}
-      .quick-btn .s{font-size:.78rem}
-      .routine-title,.patient-name,.exercise-name{font-size:1rem}
-      .section-title{font-size:.98rem}
-      .searchbar input{font-size:.94rem}
-      .footer-actions{grid-template-columns:1fr}
-      .between{align-items:flex-start}
-    }
-
-    @media (min-width: 520px){
-      body{display:grid;place-items:center;padding:10px;background:#02070e}
-      .app{border-radius:34px;box-shadow:0 24px 70px rgba(0,0,0,.46)}
-      .fab{right:calc(50% - 260px + 18px)}
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>KINEPRO</title>
+<meta name="description" content="KINEPRO · gestión clínica mobile-first" />
+<style>
+:root{
+  --bg:#07101b;--bg2:#0b1420;--card:#18212c;--card2:#202a38;--line:rgba(255,255,255,.08);
+  --text:#eef3f7;--muted:#9ba7b4;--accent:#53efb9;--accent2:#21c58f;--accentSoft:rgba(83,239,185,.14);
+  --warn:#ffb84d;--danger:#c93244;--shadow:0 14px 40px rgba(0,0,0,.34);
+  --navH:88px;--topSafe:max(14px, env(safe-area-inset-top));--bottomSafe:max(14px, env(safe-area-inset-bottom));
+  --font:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{
+  font-family:var(--font);color:var(--text);
+  background:radial-gradient(circle at top, rgba(83,239,185,.08), transparent 28%),linear-gradient(180deg,#06101a 0%,#08101b 35%,#040b14 100%);
+  overflow:hidden;
+}
+button,input,textarea,select{font:inherit} button{cursor:pointer;border:none;background:none;color:inherit} input,textarea,select{outline:none}
+.app{width:100%;max-width:520px;height:100dvh;min-height:100dvh;margin:0 auto;position:relative;overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));border-left:1px solid rgba(255,255,255,.03);border-right:1px solid rgba(255,255,255,.03)}
+main{height:100%;position:relative;overflow:hidden}
+.screen{position:absolute;inset:0;display:none;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding:var(--topSafe) 16px calc(var(--navH) + 30px + var(--bottomSafe));scroll-behavior:smooth}
+.screen.active{display:block}
+.screen::-webkit-scrollbar,.sheet::-webkit-scrollbar{width:0;height:0}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;background:linear-gradient(180deg,#2a323e,#1a2029);color:var(--accent);border:1px solid rgba(255,255,255,.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.brand-stack{min-width:0} .eyebrow{color:var(--muted);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase} .title{font-size:1.18rem;font-weight:800;line-height:1.15;margin-top:2px} .subtitle{color:var(--muted);font-size:.88rem;margin-top:4px;line-height:1.35}
+.icon-btn{width:42px;height:42px;border-radius:15px;display:grid;place-items:center;flex:0 0 auto;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.hero{padding:18px;border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));position:relative;overflow:hidden;margin-bottom:18px}
+.hero::before{content:"";position:absolute;right:-40px;bottom:-55px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle, rgba(83,239,185,.22), transparent 68%);pointer-events:none}
+.hero .small{font-size:.74rem;color:#b7c3cd;text-transform:uppercase;letter-spacing:.14em;margin-bottom:8px}
+.hero .main{font-size:1.34rem;font-weight:800;line-height:1.08;max-width:260px}
+.hero .meta{margin-top:8px;color:var(--muted);font-size:.9rem;line-height:1.45;max-width:290px}
+.hero-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.grid3,.grid2{display:grid;gap:10px} .grid3{grid-template-columns:repeat(3,minmax(0,1fr))} .grid2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stat{background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));border:1px solid var(--line);border-radius:18px;padding:12px;min-height:88px;display:flex;flex-direction:column;justify-content:space-between}
+.stat .label{font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:#a6b1bc} .stat .value{font-size:1.32rem;font-weight:800;line-height:1;color:#fff} .stat .delta{font-size:.78rem;color:var(--accent)}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 12px} .section-title{font-size:1rem;font-weight:800} .section-link{font-size:.84rem;color:var(--accent);font-weight:700}
+.card,.session-card,.routine-card,.patient-card,.detail-card,.exec-item,.form-card,.block-card{background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.07);border-radius:22px;padding:15px;box-shadow:var(--shadow)}
+.session-card{border-color:rgba(100,255,205,.18);background:linear-gradient(180deg, rgba(83,239,185,.08), rgba(255,255,255,.03))}
+.row{display:flex;align-items:center;gap:12px} .between{display:flex;align-items:flex-start;justify-content:space-between;gap:12px} .stack{display:flex;flex-direction:column;gap:6px;min-width:0}
+.mini{font-size:.82rem;color:var(--muted);line-height:1.4} .strong{font-weight:800} .routine-title,.patient-name,.exercise-name{font-size:1rem;font-weight:800;line-height:1.2}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border-radius:999px;white-space:nowrap;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#dde7ee}
+.badge.active{background:rgba(83,239,185,.12);border-color:rgba(83,239,185,.22);color:var(--accent)} .badge.paused{background:rgba(255,184,77,.12);border-color:rgba(255,184,77,.2);color:var(--warn)} .badge.template{background:rgba(93,112,255,.12);border-color:rgba(93,112,255,.2);color:#aab4ff}
+.session-time{font-size:2.2rem;font-weight:900;letter-spacing:.03em}
+.quick-btn,.primary-btn,.secondary-btn,.danger-btn,.action-pill{border-radius:18px;padding:14px 15px;font-weight:800;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:10px}
+.quick-btn{background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.07);text-align:left;justify-content:flex-start;min-height:88px;align-items:flex-start;flex-direction:column;padding:12px}
+.quick-btn .k{width:36px;height:36px;border-radius:12px;background:rgba(83,239,185,.13);display:grid;place-items:center;color:var(--accent)} .quick-btn .t{font-size:.92rem;font-weight:800} .quick-btn .s{font-size:.78rem;color:var(--muted);line-height:1.35}
+.primary-btn{background:linear-gradient(180deg, var(--accent), var(--accent2));color:#04110d;box-shadow:0 8px 24px rgba(83,239,185,.24)} .secondary-btn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:#e8eef4} .danger-btn{background:linear-gradient(180deg,#c93244,#920f1f);color:#ffe8eb}
+.searchbar{display:flex;align-items:center;gap:12px;min-height:54px;width:100%;margin-bottom:14px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07);padding:0 14px} .searchbar input{background:transparent;border:none;color:var(--text);width:100%;font-size:.96rem} .searchbar input::placeholder{color:#8895a2}
+.segmented,.filter-row{display:flex;gap:10px;overflow:auto;padding-bottom:2px;margin-bottom:14px} .segmented::-webkit-scrollbar,.filter-row::-webkit-scrollbar{display:none}
+.seg-btn,.chip{flex:0 0 auto;padding:11px 14px;border-radius:15px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.06);color:#dbe4eb;font-weight:800;font-size:.86rem} .seg-btn.active{background:var(--accentSoft);border-color:rgba(83,239,185,.26);color:var(--accent)} .chip{border-radius:999px;font-size:.82rem} .chip.active{background:var(--accent);color:#02120b;border-color:transparent}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px} .tag{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,.05);color:#cbd5df;border:1px solid rgba(255,255,255,.06)}
+.action-pill{padding:10px 12px;border-radius:12px;font-size:.8rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);color:#ecf2f8} .action-pill.start{background:rgba(83,239,185,.12);border-color:rgba(83,239,185,.25);color:var(--accent)} .action-pill.delete{background:rgba(201,50,68,.1);border-color:rgba(201,50,68,.18);color:#ffb6be}
+.field{display:flex;flex-direction:column;gap:8px;margin-bottom:14px} .field:last-child{margin-bottom:0} .label{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:#b1bcc6;font-weight:800}
+.input,.textarea,.select{width:100%;min-height:50px;border-radius:16px;background:#232c39;border:1px solid rgba(255,255,255,.06);color:var(--text);padding:14px;font-size:.96rem} .textarea{min-height:98px;resize:none} .inline-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.block-card{border-color:rgba(83,239,185,.18);background:linear-gradient(180deg, rgba(83,239,185,.08), rgba(255,255,255,.02))} .exercise-compact{border-radius:18px;padding:14px;background:rgba(15,20,28,.74);border:1px solid rgba(255,255,255,.06);margin-top:12px}
+.exercise-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px} .metric{border-radius:14px;padding:10px 8px;background:#2a3442;border:1px solid rgba(255,255,255,.06);text-align:center} .metric .m-label{font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;color:#acb7c3} .metric .m-value{margin-top:6px;font-weight:800;font-size:.96rem}
+.library-list{margin-top:8px;padding-bottom:6px} .library-item{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:14px;margin-bottom:10px;border-radius:18px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03)} .library-item .l-main{min-width:0} .library-item .name{font-weight:800;line-height:1.2} .library-item .meta{font-size:.82rem;color:var(--muted);margin-top:4px;line-height:1.35}
+.plus-btn{width:38px;height:38px;border-radius:12px;background:rgba(83,239,185,.12);border:1px solid rgba(83,239,185,.24);color:var(--accent);display:grid;place-items:center;font-size:1.15rem;flex:0 0 auto}
+.timer-panel{text-align:center;padding:18px;border-radius:24px;background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.07);box-shadow:var(--shadow);margin-bottom:16px}
+.timer-panel .timer-label{font-size:.76rem;text-transform:uppercase;letter-spacing:.16em;color:#b6c0ca}
+.digital{font-size:3.5rem;line-height:1;margin:12px 0 10px;font-weight:900;letter-spacing:.02em;background:linear-gradient(180deg,#eff7fb,#57ebb7);-webkit-background-clip:text;background-clip:text;color:transparent}
+.progress-wrap{margin:14px 0 0} .progress-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:10px} .progress-bar{width:100%;height:9px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden} .progress-bar>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));width:60%}
+.exec-item.completed{border-color:rgba(83,239,185,.22);background:linear-gradient(180deg, rgba(83,239,185,.09), rgba(255,255,255,.02))} .check{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.22);display:grid;place-items:center;flex:0 0 auto;color:transparent;font-size:.85rem;font-weight:900} .exec-item.completed .check{background:var(--accent);color:#032216;border-color:transparent}
+.note-box{margin-top:12px;border-radius:16px;padding:12px;background:#242e3b;color:#c6d1da;font-size:.92rem;border:1px solid rgba(255,255,255,.06);line-height:1.45}
+.footer-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px} .footer-actions.single{grid-template-columns:1fr}
+.avatar-sm{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-weight:900;background:rgba(83,239,185,.12);color:var(--accent);border:1px solid rgba(83,239,185,.18)}
+.detail-list{display:grid;gap:10px} .detail-row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start} .detail-row .k{color:#aab6c2;font-size:.86rem} .detail-row .v{text-align:right;font-weight:700;max-width:62%}
+.menu-list{display:grid;gap:12px} .menu-item{display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:20px;padding:16px;background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.07);box-shadow:var(--shadow)} .menu-item .left{display:flex;align-items:center;gap:12px;min-width:0} .menu-item .ico{width:42px;height:42px;border-radius:14px;background:rgba(83,239,185,.12);color:var(--accent);display:grid;place-items:center;border:1px solid rgba(83,239,185,.18)} .menu-item .m-title{font-weight:800} .menu-item .m-sub{font-size:.84rem;color:var(--muted);margin-top:4px;line-height:1.35}
+.bottom-nav{position:absolute;left:0;right:0;bottom:0;z-index:70;height:calc(var(--navH) + var(--bottomSafe));padding:8px 8px calc(10px + var(--bottomSafe));background:linear-gradient(180deg, rgba(14,19,27,.82), rgba(20,26,37,.96));backdrop-filter:blur(18px);border-top:1px solid rgba(255,255,255,.08);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.nav-btn{min-width:0;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#8f9baa;font-size:.56rem;line-height:1.05;text-transform:uppercase;letter-spacing:.03em;font-weight:800;padding:4px 1px;text-align:center;overflow:hidden} .nav-btn .nav-ico{width:22px;height:22px;display:grid;place-items:center;flex:0 0 auto} .nav-btn.active{color:var(--accent)}
+.fab{position:fixed;right:calc(16px + (100vw - min(100vw,520px))/2);bottom:calc(var(--navH) + 20px + var(--bottomSafe));width:56px;height:56px;border-radius:18px;background:linear-gradient(180deg,var(--accent),var(--accent2));color:#04110d;display:grid;place-items:center;box-shadow:0 14px 30px rgba(83,239,185,.28);z-index:62}
+.modal-backdrop{position:absolute;inset:0;background:rgba(3,7,12,.66);backdrop-filter:blur(8px);display:none;align-items:flex-end;z-index:90} .modal-backdrop.open{display:flex}} .sheet{width:100%;max-height:88dvh;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;border-radius:28px 28px 0 0;padding:14px 18px calc(18px + var(--bottomSafe));background:linear-gradient(180deg,#101925,#0c131c);border-top:1px solid rgba(255,255,255,.08);box-shadow:0 -18px 40px rgba(0,0,0,.4)}} .grabber{width:54px;height:5px;border-radius:999px;background:rgba(255,255,255,.14);margin:4px auto 14px}
+.hidden{display:none !important}
+@media (max-width:420px){.title{font-size:1.14rem} .subtitle{font-size:.84rem} .hero .main{font-size:1.26rem;max-width:none} .hero .meta{font-size:.86rem;max-width:none} .footer-actions{grid-template-columns:1fr} .quick-btn{min-height:84px} .digital{font-size:3.1rem}}
+@media (min-width:520px){body{display:grid;place-items:center;padding:10px;background:#02070e} .app{border-radius:34px;box-shadow:0 24px 70px rgba(0,0,0,.46)} .fab{right:calc(50% - 260px + 16px)}}
+</style>
 </head>
 <body>
-  <div class="app" id="app">
-    <main>
-      <section class="screen active" data-screen="home">
-        <div class="topbar">
-          <div class="brand">
-            <div class="avatar">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 12c2.76 0 5-2.69 5-6s-2.24-6-5-6-5 2.69-5 6 2.24 6 5 6Zm0 2c-4.42 0-8 2.69-8 6v2h16v-2c0-3.31-3.58-6-8-6Z"/></svg>
-            </div>
-            <div class="brand-stack">
-              <div class="eyebrow" id="homeEyebrow">Panel clínico</div>
-              <div class="title" id="homeGreeting">Buen día, Dr. Ríos</div>
-              <div class="subtitle" id="homeSubtitle">Control de pacientes, rutinas y sesiones activas</div>
-            </div>
-          </div>
-          <button class="icon-btn" aria-label="Buscar">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
-          </button>
-        </div>
-
-        <div class="hero">
-          <div class="small">KINEPRO</div>
-          <div class="main">Herramienta clínica para trabajo real en rehabilitación</div>
-          <div class="meta">Crea rutinas, ejecuta sesiones en vivo, registra observaciones y sigue el progreso del paciente desde el celular.</div>
-          <div class="hero-actions">
-            <button class="badge active">● Sesión activa</button>
-            <button class="badge">12 plantillas guardadas</button>
+<div class="app" id="app">
+  <main>
+    <section class="screen active" data-screen="home">
+      <div class="topbar">
+        <div class="brand">
+          <div class="avatar"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 12c2.76 0 5-2.69 5-6s-2.24-6-5-6-5 2.69-5 6 2.24 6 5 6Zm0 2c-4.42 0-8 2.69-8 6v2h16v-2c0-3.31-3.58-6-8-6Z"/></svg></div>
+          <div class="brand-stack">
+            <div class="eyebrow" id="homeEyebrow">Panel clínico</div>
+            <div class="title" id="homeGreeting">Buen día, Dr. Ríos</div>
+            <div class="subtitle" id="homeSubtitle">Control de pacientes, rutinas y sesiones activas</div>
           </div>
         </div>
+        <button class="icon-btn" aria-label="Buscar"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></button>
+      </div>
 
-        <div class="grid-3">
-          <div class="stat">
-            <div class="label">Pacientes</div>
-            <div class="value">48</div>
-            <div class="delta">+4 este mes</div>
+      <div class="hero">
+        <div class="small">KINEPRO</div>
+        <div class="main">Herramienta clínica para trabajo real en rehabilitación</div>
+        <div class="meta">Crea rutinas, ejecuta sesiones en vivo, registra observaciones y sigue el progreso del paciente desde el celular.</div>
+        <div class="hero-actions">
+          <button class="badge active">● Sesión activa</button>
+          <button class="badge">12 plantillas guardadas</button>
+        </div>
+      </div>
+
+      <div class="grid3">
+        <div class="stat"><div class="label">Pacientes</div><div class="value">48</div><div class="delta">+4 este mes</div></div>
+        <div class="stat"><div class="label">Activas</div><div class="value">3</div><div class="delta">2 en curso</div></div>
+        <div class="stat"><div class="label">Hoy</div><div class="value">14</div><div class="delta">9 cerradas</div></div>
+      </div>
+
+      <div class="section-head"><div class="section-title">Sesiones en curso</div><button class="section-link" data-go="execution">Ver ejecución</button></div>
+      <div class="session-card">
+        <div class="between">
+          <div class="stack">
+            <div class="mini">Paciente</div>
+            <div class="routine-title">Marta Gómez</div>
+            <div class="mini">Post-Op ACL Recovery · Bloque Día 2</div>
           </div>
-          <div class="stat">
-            <div class="label">Activas</div>
-            <div class="value">3</div>
-            <div class="delta">2 en curso</div>
-          </div>
-          <div class="stat">
-            <div class="label">Hoy</div>
-            <div class="value">14</div>
-            <div class="delta">9 cerradas</div>
-          </div>
+          <span class="badge active">Activa</span>
+        </div>
+        <div class="between" style="margin-top:14px;align-items:flex-end">
+          <div><div class="mini">Cronómetro visible</div><div class="session-time" id="homeTimer">24:42</div></div>
+          <div class="stack" style="align-items:flex-end"><div class="mini">Progreso</div><div class="strong">60%</div></div>
+        </div>
+        <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:14px"><button class="action-pill start" data-go="execution">Abrir sesión</button><button class="action-pill" id="homeNoteBtn">Registrar nota</button></div>
+      </div>
+
+      <div class="section-head"><div class="section-title">Accesos rápidos</div></div>
+      <div class="grid2">
+        <button class="quick-btn" data-go="execution"><span class="k"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"></path><path d="M4 5h2v14H4z"></path></svg></span><span class="t">Nueva sesión</span><span class="s">Cronómetro, progreso y registro clínico</span></button>
+        <button class="quick-btn" data-go="patients"><span class="k"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.79 2.99-4S17.66 3 16 3s-3 1.79-3 4 1.34 4 3 4Zm-8 0c1.66 0 2.99-1.79 2.99-4S9.66 3 8 3 5 4.79 5 7s1.34 4 3 4Zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.92 1.97 3.45V19H23v-2.5c0-2.33-4.67-3.5-7-3.5Z"/></svg></span><span class="t">Ver pacientes</span><span class="s">Ficha clínica, evolución e historial</span></button>
+        <button class="quick-btn" data-go="editor"><span class="k"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25Zm18-11.5a1 1 0 0 0 0-1.41l-1.34-1.34a1 1 0 0 0-1.41 0L15.13 4.1l3.75 3.75L21 5.75Z"/></svg></span><span class="t">Nueva rutina</span><span class="s">Editor por día o por semana</span></button>
+        <button class="quick-btn" data-open-sheet="templates"><span class="k"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2Zm-7 9H8V8h4v4Zm4 0h-2V8h2v4Z"/></svg></span><span class="t">Plantillas</span><span class="s">Modelos reutilizables para distintos casos</span></button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="routines">
+      <div class="topbar">
+        <div class="brand"><div class="avatar"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94L14.4 2.5a.5.5 0 0 0-.49-.4h-3.84a.5.5 0 0 0-.49.4l-.36 2.82c-.58.22-1.12.53-1.63.94L5.2 5.3a.5.5 0 0 0-.6.22L2.68 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.8 14.52a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.31.6.22l2.39-.96c.5.41 1.05.72 1.63.94l.36 2.82c.03.24.24.4.49.4h3.84c.25 0 .46-.18.49-.4l.36-2.82c.58-.22 1.12-.53 1.63-.94l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg></div><div class="brand-stack"><div class="eyebrow">Gestión de rutinas</div><div class="title">Rutinas y plantillas</div></div></div>
+        <button class="icon-btn" data-go="editor"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"/></svg></button>
+      </div>
+      <div class="searchbar"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input type="text" placeholder="Buscar rutinas, pacientes o plantillas" /></div>
+      <div class="segmented"><button class="seg-btn active">Rutinas</button><button class="seg-btn">Plantillas</button><button class="seg-btn">Recientes</button></div>
+      <div class="routine-card"><div class="between"><div><div class="routine-title">Reeducación de rodilla post LCA</div><div class="mini">Paciente: Marta Gómez · 31/03/2026</div></div><span class="badge active">Activa</span></div><div class="tags"><span class="tag">Día 2</span><span class="tag">Rodilla</span><span class="tag">Estabilidad</span></div><div class="mini" style="margin-top:10px">Buena tolerancia al trabajo isométrico. Seguir controlando extensión terminal y descarga.</div><div class="row" style="gap:8px;flex-wrap:wrap;margin-top:14px"><button class="action-pill" data-go="editor">Editar</button><button class="action-pill" id="dupRoutineBtn">Duplicar</button><button class="action-pill delete" id="delRoutineBtn">Eliminar</button><button class="action-pill start" data-go="execution">Iniciar sesión</button></div></div>
+      <div class="routine-card"><div class="between"><div><div class="routine-title">Control lumbopélvico y cadena posterior</div><div class="mini">Paciente: Juan Molina · 30/03/2026</div></div><span class="badge">Pendiente</span></div><div class="tags"><span class="tag">Semana 1</span><span class="tag">Espalda</span><span class="tag">Movilidad</span></div><div class="mini" style="margin-top:10px">Agregar variantes funcionales si no hay dolor irradiado. Priorizar patrón respiratorio.</div><div class="row" style="gap:8px;flex-wrap:wrap;margin-top:14px"><button class="action-pill" data-go="editor">Editar</button><button class="action-pill">Duplicar</button><button class="action-pill delete">Eliminar</button><button class="action-pill start" data-go="execution">Iniciar sesión</button></div></div>
+      <div class="routine-card"><div class="between"><div><div class="routine-title">Plantilla hombro post inmovilización</div><div class="mini">Sin paciente asignado · 25/03/2026</div></div><span class="badge template">Plantilla</span></div><div class="tags"><span class="tag">Hombro</span><span class="tag">Movilidad</span><span class="tag">Rehabilitación</span></div><div class="mini" style="margin-top:10px">Base reutilizable para fases iniciales con progresión semanal y control de dolor.</div><div class="row" style="gap:8px;flex-wrap:wrap;margin-top:14px"><button class="action-pill">Editar</button><button class="action-pill">Duplicar</button><button class="action-pill delete">Eliminar</button><button class="action-pill start">Usar plantilla</button></div></div>
+      <div class="footer-actions single"><button class="primary-btn" data-go="editor">Crear nueva rutina</button></div>
+    </section>
+
+    <section class="screen" data-screen="execution">
+      <div class="topbar">
+        <div class="brand"><div class="avatar"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M7 2h10v2h-1v3.07A7.001 7.001 0 0 1 12 20a7.001 7.001 0 0 1-4-12.93V4H7V2Zm3 2v4.26l-.47.29A5 5 0 1 0 14 8.55l-.47-.29V4h-3.53Z"/></svg></div><div class="brand-stack"><div class="eyebrow">Sesión activa</div><div class="title">Marta Gómez</div><div class="subtitle">Post-Op ACL Recovery · Día 2</div></div></div>
+        <button class="icon-btn" id="sessionMenuBtn"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="12" cy="5" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="19" r="2"></circle></svg></button>
+      </div>
+      <div class="timer-panel"><div class="timer-label">Tiempo de sesión actual</div><div class="digital" id="executionTimer">24:42</div><div class="badge active" id="sessionState">Sesión activa</div><div class="progress-wrap"><div class="progress-head"><span class="mini">Progreso global</span><span class="strong" id="progressText">60%</span></div><div class="progress-bar"><span id="progressFill" style="width:60%"></span></div></div></div>
+      <div class="section-head"><div class="section-title">Bloque actual</div><button class="section-link" id="addObservationBtn">Registrar observación</button></div>
+      <div class="exec-item completed"><div class="between"><div class="row" style="align-items:flex-start"><div class="check">✓</div><div><div class="exercise-name">Quad Setting Isometric</div><div class="mini">3 sets · 10 reps · hold 5s</div></div></div><button class="icon-btn" style="width:40px;height:40px;border-radius:14px" id="quadNoteBtn"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2Z"/></svg></button></div></div>
+      <div class="exec-item completed"><div class="between"><div class="row" style="align-items:flex-start"><div class="check">✓</div><div><div class="exercise-name">Straight Leg Raise</div><div class="mini">Objetivo activo · control de extensión terminal</div></div></div><button class="badge active" id="repsBadgeBtn">12 reps</button></div><div class="exercise-grid"><div class="metric"><div class="m-label">Sets</div><div class="m-value">3</div></div><div class="metric"><div class="m-label">Reales</div><div class="m-value">12</div></div><div class="metric"><div class="m-label">Carga</div><div class="m-value">2.5</div></div></div><div class="note-box">Observación clínica: buena activación, leve fatiga al final de la serie. Sin compensaciones relevantes.</div></div>
+      <div class="exec-item" data-completable><div class="between"><div class="row" style="align-items:flex-start"><div class="check"></div><div><div class="exercise-name">Terminal Knee Extension</div><div class="mini">2 sets · 15 reps · banda amarilla</div></div></div><button class="action-pill load-data-btn">Cargar datos</button></div></div>
+      <div class="exec-item" data-completable><div class="between"><div class="row" style="align-items:flex-start"><div class="check"></div><div><div class="exercise-name">Heel Slides</div><div class="mini">3 sets · 10 reps · asistido</div></div></div><button class="action-pill load-data-btn">Cargar datos</button></div></div>
+      <div class="footer-actions"><button class="secondary-btn" id="pauseBtn">Pausar</button><button class="secondary-btn" id="resumeBtn">Reanudar</button></div>
+      <div class="footer-actions single"><button class="danger-btn" id="finishSessionBtn">Finalizar sesión</button></div>
+    </section>
+
+    <section class="screen" data-screen="patients">
+      <div class="topbar">
+        <div class="brand"><div class="avatar"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.79 2.99-4S17.66 3 16 3s-3 1.79-3 4 1.34 4 3 4Zm-8 0c1.66 0 2.99-1.79 2.99-4S9.66 3 8 3 5 4.79 5 7s1.34 4 3 4Zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.92 1.97 3.45V19H23v-2.5c0-2.33-4.67-3.5-7-3.5Z"/></svg></div><div class="brand-stack"><div class="eyebrow">Base clínica</div><div class="title">Pacientes</div></div></div>
+        <button class="icon-btn" id="newPatientBtn"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"/></svg></button>
+      </div>
+      <div class="searchbar"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input type="text" placeholder="Buscar por nombre, fase o patología" /></div>
+      <div class="patient-card" data-go="patient-profile"><div class="between"><div class="row"><div class="avatar-sm">MG</div><div><div class="patient-name">Marta Gómez</div><div class="mini">Fase de tratamiento: reacondicionamiento inicial</div></div></div><span class="badge active">ACL</span></div><div class="tags"><span class="tag">+54 299 555 1020</span><span class="tag">Control semanal</span></div><div class="mini" style="margin-top:10px">Dolor bajo control. Persistencia de déficit en extensión terminal y leve inhibición cuadricipital.</div></div>
+      <div class="patient-card"><div class="between"><div class="row"><div class="avatar-sm">JM</div><div><div class="patient-name">Juan Molina</div><div class="mini">Fase de tratamiento: movilidad y control motor</div></div></div><span class="badge">Lumbar</span></div><div class="tags"><span class="tag">+54 299 555 9811</span><span class="tag">2 sesiones por semana</span></div><div class="mini" style="margin-top:10px">Buena adherencia. Molestia residual a la flexión sostenida. Mejoró la tolerancia a ejercicios de estabilidad.</div></div>
+      <div class="patient-card"><div class="between"><div class="row"><div class="avatar-sm">LP</div><div><div class="patient-name">Lucía Pérez</div><div class="mini">Fase de tratamiento: retorno funcional</div></div></div><span class="badge">Hombro</span></div><div class="tags"><span class="tag">+54 299 555 4132</span><span class="tag">Alta próxima</span></div><div class="mini" style="margin-top:10px">Rango casi completo. Seguir con trabajo excéntrico y control escapular antes de alta deportiva.</div></div>
+      <div class="footer-actions single"><button class="primary-btn" id="createPatientBtn">Crear nuevo paciente</button></div>
+    </section>
+
+    <section class="screen" data-screen="more">
+      <div class="topbar">
+        <div class="brand"><div class="avatar"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg></div><div class="brand-stack"><div class="eyebrow">Herramientas extra</div><div class="title">Más</div></div></div>
+        <button class="icon-btn" id="settingsBtn"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94L14.4 2.5a.5.5 0 0 0-.49-.4h-3.84a.5.5 0 0 0-.49.4l-.36 2.82c-.58.22-1.12.53-1.63.94L5.2 5.3a.5.5 0 0 0-.6.22L2.68 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.8 14.52a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.31.6.22l2.39-.96c.5.41 1.05.72 1.63.94l.36 2.82c.03.24.24.4.49.4h3.84c.25 0 .46-.18.49-.4l.36-2.82c.58-.22 1.12-.53 1.63-.94l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg></button>
+      </div>
+      <div class="menu-list">
+        <button class="menu-item" data-open-sheet="templates"><div class="left"><div class="ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2Z"/></svg></div><div><div class="m-title">Plantillas</div><div class="m-sub">Modelos reutilizables por patología o fase</div></div></div><span>›</span></button>
+        <button class="menu-item" data-open-sheet="library"><div class="left"><div class="ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-2H6.5a.5.5 0 0 1 0-1H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14Z"/></svg></div><div><div class="m-title">Biblioteca de ejercicios</div><div class="m-sub">Prokinesis y CES757 con buscador independiente</div></div></div><span>›</span></button>
+        <button class="menu-item" data-open-sheet="branding"><div class="left"><div class="ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6Z"/></svg></div><div><div class="m-title">Textos de inicio</div><div class="m-sub">Edita encabezado, saludo y subtítulo de la portada</div></div></div><span>›</span></button>
+        <button class="menu-item" id="exportWhatsappBtn"><div class="left"><div class="ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 4H4a2 2 0 0 0-2 2v11.17A2 2 0 0 0 4 19h3v3l4-3h9a2 2 0 0 0 2-1.83V6a2 2 0 0 0-2-2Zm-8.17 11.59-.86-.88 4.3-4.21H6v-1.25h9.24l-4.29-4.21.86-.88L17.6 10l-5.78 5.59Z"/></svg></div><div><div class="m-title">Exportar rutina por WhatsApp</div><div class="m-sub">Resumen claro para enviar al paciente</div></div></div><span>›</span></button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="editor">
+      <div class="topbar">
+        <div class="brand"><div class="avatar"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25Zm18-11.5a1 1 0 0 0 0-1.41l-1.34-1.34a1 1 0 0 0-1.41 0L15.13 4.1l3.75 3.75L21 5.75Z"/></svg></div><div class="brand-stack"><div class="eyebrow">Editor de rutina</div><div class="title">Crear o editar rutina</div></div></div>
+        <button class="icon-btn" data-go="routines"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M18.3 5.71 12 12l6.3 6.29-1.42 1.41L10.59 13.4 4.29 19.7 2.88 18.29 9.17 12 2.88 5.71 4.29 4.3l6.3 6.29 6.29-6.3 1.42 1.42Z"/></svg></button>
+      </div>
+      <div class="form-card">
+        <div class="field"><label class="label">Nombre del paciente</label><input class="input" type="text" value="Marta Gómez"></div>
+        <div class="inline-grid"><div class="field"><label class="label">Fecha automática</label><input class="input" type="text" value="31/03/2026"></div><div class="field"><label class="label">Modo</label><select class="select"><option>Por día</option><option>Por semana</option></select></div></div>
+        <div class="field"><label class="label">Nombre de la rutina</label><input class="input" type="text" value="Post-Op ACL Recovery"></div>
+        <div class="field"><label class="label">Observaciones generales</label><textarea class="textarea">Controlar extensión terminal. Mantener carga progresiva según tolerancia. Monitorear compensaciones de cadera.</textarea></div>
+      </div>
+      <div class="section-head"><div class="section-title">Bloques de la rutina</div><button class="section-link" id="addBlockBtn">Agregar bloque</button></div>
+      <div class="block-card"><div class="between"><div><div class="routine-title">Día 1</div><div class="mini">Activación inicial y movilidad controlada</div></div><button class="action-pill">Renombrar</button></div><div class="exercise-compact"><div class="between"><div><div class="exercise-name">Quad Setting Isometric</div><div class="mini">Isométrico · Rodilla</div></div><div class="row" style="gap:8px;flex-wrap:wrap"><button class="action-pill">Editar</button><button class="action-pill delete">Quitar</button></div></div><div class="exercise-grid"><div class="metric"><div class="m-label">Series</div><div class="m-value">3</div></div><div class="metric"><div class="m-label">Reps</div><div class="m-value">10</div></div><div class="metric"><div class="m-label">Peso</div><div class="m-value">0</div></div></div><div class="note-box">Observación: sostener 5 segundos y evitar elevación compensatoria de pelvis.</div></div><div class="row" style="gap:8px;flex-wrap:wrap;margin-top:14px"><button class="action-pill start" data-open-sheet="library">Agregar ejercicio</button><button class="action-pill">Reordenar</button></div></div>
+      <div class="footer-actions single"><button class="primary-btn" id="saveRoutineBtn">Guardar rutina</button></div>
+    </section>
+
+    <section class="screen" data-screen="patient-profile">
+      <div class="topbar">
+        <div class="brand"><div class="avatar"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 12c2.76 0 5-2.69 5-6s-2.24-6-5-6-5 2.69-5 6 2.24 6 5 6Zm0 2c-4.42 0-8 2.69-8 6v2h16v-2c0-3.31-3.58-6-8-6Z"/></svg></div><div class="brand-stack"><div class="eyebrow">Ficha clínica</div><div class="title">Marta Gómez</div><div class="subtitle">Seguimiento individual del paciente</div></div></div>
+        <button class="icon-btn" data-go="patients"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="m14 7-5 5 5 5V7Z"/></svg></button>
+      </div>
+      <div class="detail-card"><div class="detail-list"><div class="detail-row"><div class="k">Edad</div><div class="v">29 años</div></div><div class="detail-row"><div class="k">Teléfono</div><div class="v">+54 299 555 1020</div></div><div class="detail-row"><div class="k">Email</div><div class="v">marta.gomez@email.com</div></div><div class="detail-row"><div class="k">Fase</div><div class="v">Reacondicionamiento inicial</div></div><div class="detail-row"><div class="k">Antecedentes</div><div class="v">Reconstrucción LCA, sin comorbilidades relevantes</div></div><div class="detail-row"><div class="k">Observaciones</div><div class="v">Buena adherencia. Déficit leve en extensión terminal.</div></div></div></div>
+      <div class="section-head"><div class="section-title">Rutinas asociadas</div></div>
+      <div class="routine-card"><div class="between"><div><div class="routine-title">Post-Op ACL Recovery</div><div class="mini">Actualizada hoy · 2 bloques activos</div></div><span class="badge active">En uso</span></div></div>
+      <div class="section-head"><div class="section-title">Historial de sesiones</div></div>
+      <div class="routine-card"><div class="between"><div><div class="routine-title">31/03 · Sesión 14</div><div class="mini">Mejor control en SLR. Toleró 2.5 kg sin dolor.</div></div><span class="badge">35 min</span></div></div>
+      <div class="routine-card"><div class="between"><div><div class="routine-title">29/03 · Sesión 13</div><div class="mini">Persistió rigidez inicial. Mejoró al final de la sesión.</div></div><span class="badge">33 min</span></div></div>
+      <div class="section-head"><div class="section-title">Evolución reciente</div></div>
+      <div class="detail-card"><div class="mini">Dolor subjetivo ↓ · Extensión activa ↑ · Mayor tolerancia a estabilidad básica y carga progresiva.</div></div>
+    </section>
+  </main>
+
+  <button class="fab" data-go="editor" aria-label="Crear"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"/></svg></button>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-nav="home"><span class="nav-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 3 3 10v11h6v-7h6v7h6V10l-9-7Z"/></svg></span><span>Inicio</span></button>
+    <button class="nav-btn" data-nav="routines"><span class="nav-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M3 5h18v4H3V5Zm0 5h18v4H3v-4Zm0 5h18v4H3v-4Z"/></svg></span><span>Rutinas</span></button>
+    <button class="nav-btn" data-nav="execution"><span class="nav-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span><span>Ejecución</span></button>
+    <button class="nav-btn" data-nav="patients"><span class="nav-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.79 2.99-4S17.66 3 16 3s-3 1.79-3 4 1.34 4 3 4Zm-8 0c1.66 0 2.99-1.79 2.99-4S9.66 3 8 3 5 4.79 5 7s1.34 4 3 4Zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.92 1.97 3.45V19H23v-2.5c0-2.33-4.67-3.5-7-3.5Z"/></svg></span><span>Pacientes</span></button>
+    <button class="nav-btn" data-nav="more"><span class="nav-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg></span><span>Más</span></button>
+  </nav>
+
+  <div class="modal-backdrop" id="sheetBackdrop">
+    <div class="sheet">
+      <div class="grabber"></div>
+
+      <div id="sheetTemplates" class="sheet-view hidden">
+        <div class="between" style="margin-bottom:14px"><div><div class="eyebrow">Plantillas</div><div class="title">Biblioteca reutilizable</div></div><button class="icon-btn close-sheet" style="width:40px;height:40px;border-radius:14px"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.3 5.71 12 12l6.3 6.29-1.42 1.41L10.59 13.4 4.29 19.7 2.88 18.29 9.17 12 2.88 5.71 4.29 4.3l6.3 6.29 6.29-6.3 1.42 1.42Z"/></svg></button></div>
+        <div class="library-list">
+          <div class="library-item"><div class="l-main"><div class="name">Plantilla rodilla fase inicial</div><div class="meta">Movilidad, isométricos y control de carga</div></div><button class="plus-btn">+</button></div>
+          <div class="library-item"><div class="l-main"><div class="name">Plantilla hombro post inmovilización</div><div class="meta">Recuperación de rango y control escapular</div></div><button class="plus-btn">+</button></div>
+          <div class="library-item"><div class="l-main"><div class="name">Plantilla lumbalgia control motor</div><div class="meta">Respiración, core y patrón de bisagra</div></div><button class="plus-btn">+</button></div>
+        </div>
+      </div>
+
+      <div id="sheetLibrary" class="sheet-view hidden">
+        <div class="between" style="margin-bottom:14px"><div><div class="eyebrow">Biblioteca de ejercicios</div><div class="title">Seleccionar ejercicio</div><div class="mini" id="libraryCount"></div></div><button class="icon-btn close-sheet" style="width:40px;height:40px;border-radius:14px"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.3 5.71 12 12l6.3 6.29-1.42 1.41L10.59 13.4 4.29 19.7 2.88 18.29 9.17 12 2.88 5.71 4.29 4.3l6.3 6.29 6.29-6.3 1.42 1.42Z"/></svg></button></div>
+        <div class="segmented" id="libraryTabs">
+          <button class="seg-btn active" data-libtab="prokinesis">Ejercicios Prokinesis</button>
+          <button class="seg-btn" data-libtab="ces757">Ejercicios CES757</button>
         </div>
 
-        <div class="section-head">
-          <div class="section-title">Sesiones en curso</div>
-          <button class="section-link" data-go="execution">Ver ejecución</button>
-        </div>
-
-        <div class="session-card">
-          <div class="between">
-            <div class="stack">
-              <div class="mini">Paciente</div>
-              <div class="routine-title">Marta Gómez</div>
-              <div class="mini">Post-Op ACL Recovery · Bloque Día 2</div>
-            </div>
-            <span class="badge active">Activa</span>
-          </div>
-          <div class="between" style="margin-top:14px;align-items:flex-end">
-            <div>
-              <div class="mini">Cronómetro visible</div>
-              <div class="session-time" id="homeTimer">24:42</div>
-            </div>
-            <div class="stack" style="align-items:flex-end">
-              <div class="mini">Progreso</div>
-              <div class="strong">60%</div>
-            </div>
-          </div>
-          <div class="mini-actions">
-            <button class="action-pill start" data-go="execution">Abrir sesión</button>
-            <button class="action-pill">Registrar nota</button>
-          </div>
-        </div>
-
-        <div class="section-head">
-          <div class="section-title">Accesos rápidos</div>
-        </div>
-
-        <div class="grid-2">
-          <button class="quick-btn" data-go="execution">
-            <span class="k">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"></path><path d="M4 5h2v14H4z"></path></svg>
-            </span>
-            <span class="t">Nueva sesión</span>
-            <span class="s">Cronómetro, progreso y registro clínico</span>
-          </button>
-          <button class="quick-btn" data-go="patients">
-            <span class="k">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.79 2.99-4S17.66 3 16 3s-3 1.79-3 4 1.34 4 3 4Zm-8 0c1.66 0 2.99-1.79 2.99-4S9.66 3 8 3 5 4.79 5 7s1.34 4 3 4Zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.92 1.97 3.45V19H23v-2.5c0-2.33-4.67-3.5-7-3.5Z"/></svg>
-            </span>
-            <span class="t">Ver pacientes</span>
-            <span class="s">Ficha clínica, evolución e historial</span>
-          </button>
-          <button class="quick-btn" data-go="editor">
-            <span class="k">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25Zm18-11.5a1 1 0 0 0 0-1.41l-1.34-1.34a1 1 0 0 0-1.41 0L15.13 4.1l3.75 3.75L21 5.75Z"/></svg>
-            </span>
-            <span class="t">Nueva rutina</span>
-            <span class="s">Editor por día o por semana</span>
-          </button>
-          <button class="quick-btn" data-open-sheet="templates">
-            <span class="k">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2Zm-7 9H8V8h4v4Zm4 0h-2V8h2v4Z"/></svg>
-            </span>
-            <span class="t">Plantillas</span>
-            <span class="s">Modelos reutilizables para distintos casos</span>
-          </button>
-        </div>
-      </section>
-
-      <section class="screen" data-screen="routines">
-        <div class="topbar">
-          <div class="brand">
-            <div class="avatar">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94L14.4 2.5a.5.5 0 0 0-.49-.4h-3.84a.5.5 0 0 0-.49.4l-.36 2.82c-.58.22-1.12.53-1.63.94L5.2 5.3a.5.5 0 0 0-.6.22L2.68 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.8 14.52a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.31.6.22l2.39-.96c.5.41 1.05.72 1.63.94l.36 2.82c.03.24.24.4.49.4h3.84c.25 0 .46-.18.49-.4l.36-2.82c.58-.22 1.12-.53 1.63-.94l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg>
-            </div>
-            <div class="brand-stack">
-              <div class="eyebrow">Gestión de rutinas</div>
-              <div class="title">Rutinas y plantillas</div>
-            </div>
-          </div>
-          <button class="icon-btn" data-go="editor" aria-label="Crear">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
-          </button>
-        </div>
-
-        <div class="searchbar">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
-          <input type="text" placeholder="Buscar rutinas, pacientes o plantillas" />
-        </div>
-
-        <div class="segmented">
-          <button class="seg-btn active">Rutinas</button>
-          <button class="seg-btn">Plantillas</button>
-          <button class="seg-btn">Recientes</button>
-        </div>
-
-        <div class="routine-card">
-          <div class="head">
-            <div>
-              <div class="routine-title">Reeducación de rodilla post LCA</div>
-              <div class="mini">Paciente: Marta Gómez · 31/03/2026</div>
-            </div>
-            <span class="badge active">Activa</span>
-          </div>
-          <div class="tags">
-            <span class="tag">Día 2</span>
-            <span class="tag">Rodilla</span>
-            <span class="tag">Estabilidad</span>
-          </div>
-          <div class="mini" style="margin-top:10px">Buena tolerancia al trabajo isométrico. Seguir controlando extensión terminal y descarga.</div>
-          <div class="routine-actions">
-            <button class="action-pill" data-go="editor">Editar</button>
-            <button class="action-pill">Duplicar</button>
-            <button class="action-pill delete">Eliminar</button>
-            <button class="action-pill start" data-go="execution">Iniciar sesión</button>
-          </div>
-        </div>
-
-        <div class="routine-card">
-          <div class="head">
-            <div>
-              <div class="routine-title">Control lumbopélvico y cadena posterior</div>
-              <div class="mini">Paciente: Juan Molina · 30/03/2026</div>
-            </div>
-            <span class="badge">Pendiente</span>
-          </div>
-          <div class="tags">
-            <span class="tag">Semana 1</span>
-            <span class="tag">Espalda</span>
-            <span class="tag">Movilidad</span>
-          </div>
-          <div class="mini" style="margin-top:10px">Agregar variantes funcionales si no hay dolor irradiado. Priorizar patrón respiratorio.</div>
-          <div class="routine-actions">
-            <button class="action-pill" data-go="editor">Editar</button>
-            <button class="action-pill">Duplicar</button>
-            <button class="action-pill delete">Eliminar</button>
-            <button class="action-pill start" data-go="execution">Iniciar sesión</button>
-          </div>
-        </div>
-
-        <div class="routine-card">
-          <div class="head">
-            <div>
-              <div class="routine-title">Plantilla hombro post inmovilización</div>
-              <div class="mini">Sin paciente asignado · 25/03/2026</div>
-            </div>
-            <span class="badge template">Plantilla</span>
-          </div>
-          <div class="tags">
-            <span class="tag">Hombro</span>
-            <span class="tag">Movilidad</span>
-            <span class="tag">Rehabilitación</span>
-          </div>
-          <div class="mini" style="margin-top:10px">Base reutilizable para fases iniciales con progresión semanal y control de dolor.</div>
-          <div class="routine-actions">
-            <button class="action-pill">Editar</button>
-            <button class="action-pill">Duplicar</button>
-            <button class="action-pill delete">Eliminar</button>
-            <button class="action-pill start">Usar plantilla</button>
-          </div>
-        </div>
-
-        <div class="footer-actions single">
-          <button class="primary-btn" data-go="editor">Crear nueva rutina</button>
-        </div>
-      </section>
-
-      <section class="screen" data-screen="execution">
-        <div class="topbar">
-          <div class="brand">
-            <div class="avatar">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M7 2h10v2h-1v3.07A7.001 7.001 0 0 1 12 20a7.001 7.001 0 0 1-4-12.93V4H7V2Zm3 2v4.26l-.47.29A5 5 0 1 0 14 8.55l-.47-.29V4h-3.53Z"/></svg>
-            </div>
-            <div class="brand-stack">
-              <div class="eyebrow">Sesión activa</div>
-              <div class="title">Marta Gómez</div>
-              <div class="subtitle">Post-Op ACL Recovery · Día 2</div>
-            </div>
-          </div>
-          <button class="icon-btn" aria-label="Opciones">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="12" cy="5" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="19" r="2"></circle></svg>
-          </button>
-        </div>
-
-        <div class="timer-panel">
-          <div class="timer-label">Tiempo de sesión actual</div>
-          <div class="digital" id="executionTimer">24:42</div>
-          <div class="badge active" id="sessionState">Sesión activa</div>
-          <div class="progress-wrap">
-            <div class="progress-head">
-              <span class="mini">Progreso global</span>
-              <span class="strong">60%</span>
-            </div>
-            <div class="progress-bar"><span id="progressFill" style="width:60%"></span></div>
-          </div>
-        </div>
-
-        <div class="section-head">
-          <div class="section-title">Bloque actual</div>
-          <button class="section-link">Registrar observación</button>
-        </div>
-
-        <div class="exec-item completed">
-          <div class="between">
-            <div class="row" style="align-items:flex-start">
-              <div class="check">✓</div>
-              <div>
-                <div class="exercise-name">Quad Setting Isometric</div>
-                <div class="mini">3 sets · 10 reps · hold 5s</div>
-              </div>
-            </div>
-            <button class="icon-btn" style="width:40px;height:40px;border-radius:14px">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2Z"/></svg>
-            </button>
-          </div>
-        </div>
-
-        <div class="exec-item completed">
-          <div class="between">
-            <div class="row" style="align-items:flex-start">
-              <div class="check">✓</div>
-              <div>
-                <div class="exercise-name">Straight Leg Raise</div>
-                <div class="mini">Objetivo activo · control de extensión terminal</div>
-              </div>
-            </div>
-            <button class="badge active">12 reps</button>
-          </div>
-          <div class="exercise-grid">
-            <div class="metric">
-              <div class="m-label">Sets</div>
-              <div class="m-value">3</div>
-            </div>
-            <div class="metric">
-              <div class="m-label">Reales</div>
-              <div class="m-value">12</div>
-            </div>
-            <div class="metric">
-              <div class="m-label">Carga</div>
-              <div class="m-value">2.5</div>
-            </div>
-          </div>
-          <div class="note-box">Observación clínica: buena activación, leve fatiga al final de la serie. Sin compensaciones relevantes.</div>
-        </div>
-
-        <div class="exec-item" data-completable>
-          <div class="between">
-            <div class="row" style="align-items:flex-start">
-              <div class="check"></div>
-              <div>
-                <div class="exercise-name">Terminal Knee Extension</div>
-                <div class="mini">2 sets · 15 reps · banda amarilla</div>
-              </div>
-            </div>
-            <button class="action-pill">Cargar datos</button>
-          </div>
-        </div>
-
-        <div class="exec-item" data-completable>
-          <div class="between">
-            <div class="row" style="align-items:flex-start">
-              <div class="check"></div>
-              <div>
-                <div class="exercise-name">Heel Slides</div>
-                <div class="mini">3 sets · 10 reps · asistido</div>
-              </div>
-            </div>
-            <button class="action-pill">Cargar datos</button>
-          </div>
-        </div>
-
-        <div class="footer-actions">
-          <button class="secondary-btn" id="pauseBtn">Pausar</button>
-          <button class="secondary-btn" id="resumeBtn">Reanudar</button>
-        </div>
-        <div class="footer-actions single">
-          <button class="danger-btn">Finalizar sesión</button>
-        </div>
-      </section>
-
-      <section class="screen" data-screen="patients">
-        <div class="topbar">
-          <div class="brand">
-            <div class="avatar">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.79 2.99-4S17.66 3 16 3s-3 1.79-3 4 1.34 4 3 4Zm-8 0c1.66 0 2.99-1.79 2.99-4S9.66 3 8 3 5 4.79 5 7s1.34 4 3 4Zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.92 1.97 3.45V19H23v-2.5c0-2.33-4.67-3.5-7-3.5Z"/></svg>
-            </div>
-            <div class="brand-stack">
-              <div class="eyebrow">Base clínica</div>
-              <div class="title">Pacientes</div>
-            </div>
-          </div>
-          <button class="icon-btn" aria-label="Nuevo paciente">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
-          </button>
-        </div>
-
-        <div class="searchbar">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
-          <input type="text" placeholder="Buscar por nombre, fase o patología" />
-        </div>
-
-        <div class="patient-card" data-go="patient-profile">
-          <div class="head">
-            <div class="row" style="align-items:center">
-              <div class="avatar-sm">MG</div>
-              <div>
-                <div class="patient-name">Marta Gómez</div>
-                <div class="mini">Fase de tratamiento: reacondicionamiento inicial</div>
-              </div>
-            </div>
-            <span class="badge active">ACL</span>
-          </div>
-          <div class="tags">
-            <span class="tag">+54 299 555 1020</span>
-            <span class="tag">Control semanal</span>
-          </div>
-          <div class="mini" style="margin-top:10px">Dolor bajo control. Persistencia de déficit en extensión terminal y leve inhibición cuadricipital.</div>
-        </div>
-
-        <div class="patient-card">
-          <div class="head">
-            <div class="row" style="align-items:center">
-              <div class="avatar-sm">JM</div>
-              <div>
-                <div class="patient-name">Juan Molina</div>
-                <div class="mini">Fase de tratamiento: movilidad y control motor</div>
-              </div>
-            </div>
-            <span class="badge">Lumbar</span>
-          </div>
-          <div class="tags">
-            <span class="tag">+54 299 555 9811</span>
-            <span class="tag">2 sesiones por semana</span>
-          </div>
-          <div class="mini" style="margin-top:10px">Buena adherencia. Molestia residual a la flexión sostenida. Mejoró la tolerancia a ejercicios de estabilidad.</div>
-        </div>
-
-        <div class="patient-card">
-          <div class="head">
-            <div class="row" style="align-items:center">
-              <div class="avatar-sm">LP</div>
-              <div>
-                <div class="patient-name">Lucía Pérez</div>
-                <div class="mini">Fase de tratamiento: retorno funcional</div>
-              </div>
-            </div>
-            <span class="badge">Hombro</span>
-          </div>
-          <div class="tags">
-            <span class="tag">+54 299 555 4132</span>
-            <span class="tag">Alta próxima</span>
-          </div>
-          <div class="mini" style="margin-top:10px">Rango casi completo. Seguir con trabajo excéntrico y control escapular antes de alta deportiva.</div>
-        </div>
-
-        <div class="footer-actions single">
-          <button class="primary-btn">Crear nuevo paciente</button>
-        </div>
-      </section>
-
-      <section class="screen" data-screen="more">
-        <div class="topbar">
-          <div class="brand">
-            <div class="avatar">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg>
-            </div>
-            <div class="brand-stack">
-              <div class="eyebrow">Herramientas extra</div>
-              <div class="title">Más</div>
-            </div>
-          </div>
-          <button class="icon-btn" aria-label="Configurar">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94L14.4 2.5a.5.5 0 0 0-.49-.4h-3.84a.5.5 0 0 0-.49.4l-.36 2.82c-.58.22-1.12.53-1.63.94L5.2 5.3a.5.5 0 0 0-.6.22L2.68 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.8 14.52a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.31.6.22l2.39-.96c.5.41 1.05.72 1.63.94l.36 2.82c.03.24.24.4.49.4h3.84c.25 0 .46-.18.49-.4l.36-2.82c.58-.22 1.12-.53 1.63-.94l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg>
-          </button>
-        </div>
-
-        <div class="menu-list">
-          <button class="menu-item" data-open-sheet="templates">
-            <div class="left">
-              <div class="ico">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2Z"/></svg>
-              </div>
-              <div>
-                <div class="m-title">Plantillas</div>
-                <div class="m-sub">Modelos reutilizables por patología o fase</div>
-              </div>
-            </div>
-            <span>›</span>
-          </button>
-          <button class="menu-item" data-open-sheet="library">
-            <div class="left">
-              <div class="ico">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-2H6.5a.5.5 0 0 1 0-1H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14Z"/></svg>
-              </div>
-              <div>
-                <div class="m-title">Biblioteca de ejercicios</div>
-                <div class="m-sub">Filtra, selecciona o crea movimientos personalizados</div>
-              </div>
-            </div>
-            <span>›</span>
-          </button>
-          <button class="menu-item">
-            <div class="left">
-              <div class="ico">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2a10 10 0 1 0 10 10A10.01 10.01 0 0 0 12 2Zm1 15h-2v-2h2Zm0-4h-2V7h2Z"/></svg>
-              </div>
-              <div>
-                <div class="m-title">Configuración general</div>
-                <div class="m-sub">Preferencias clínicas, recordatorios y visualización</div>
-              </div>
-            </div>
-            <span>›</span>
-          </button>
-          <button class="menu-item" data-open-sheet="branding">
-            <div class="left">
-              <div class="ico">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6Z"/></svg>
-              </div>
-              <div>
-                <div class="m-title">Textos de inicio</div>
-                <div class="m-sub">Edita encabezado, saludo y subtítulo de la portada</div>
-              </div>
-            </div>
-            <span>›</span>
-          </button>
-          <button class="menu-item">
-            <div class="left">
-              <div class="ico">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 4H4a2 2 0 0 0-2 2v11.17A2 2 0 0 0 4 19h3v3l4-3h9a2 2 0 0 0 2-1.83V6a2 2 0 0 0-2-2Zm-8.17 11.59-.86-.88 4.3-4.21H6v-1.25h9.24l-4.29-4.21.86-.88L17.6 10l-5.78 5.59Z"/></svg>
-              </div>
-              <div>
-                <div class="m-title">Exportar rutina por WhatsApp</div>
-                <div class="m-sub">Resumen claro para enviar al paciente o acompañante</div>
-              </div>
-            </div>
-            <span>›</span>
-          </button>
-        </div>
-      </section>
-
-      <section class="screen" data-screen="editor">
-        <div class="topbar">
-          <div class="brand">
-            <div class="avatar">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25Zm18-11.5a1 1 0 0 0 0-1.41l-1.34-1.34a1 1 0 0 0-1.41 0L15.13 4.1l3.75 3.75L21 5.75Z"/></svg>
-            </div>
-            <div class="brand-stack">
-              <div class="eyebrow">Editor de rutina</div>
-              <div class="title">Crear o editar rutina</div>
-            </div>
-          </div>
-          <button class="icon-btn" data-go="routines" aria-label="Cerrar">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M18.3 5.71 12 12l6.3 6.29-1.42 1.41L10.59 13.4 4.29 19.7 2.88 18.29 9.17 12 2.88 5.71 4.29 4.3l6.3 6.29 6.29-6.3 1.42 1.42Z"/></svg>
-          </button>
-        </div>
-
-        <div class="form-card">
-          <div class="field">
-            <label class="label">Nombre del paciente</label>
-            <input class="input" type="text" value="Marta Gómez" />
-          </div>
-          <div class="inline-grid">
-            <div class="field">
-              <label class="label">Fecha automática</label>
-              <input class="input" type="text" value="31/03/2026" />
-            </div>
-            <div class="field">
-              <label class="label">Modo</label>
-              <select class="select">
-                <option>Por día</option>
-                <option>Por semana</option>
-              </select>
-            </div>
-          </div>
-          <div class="field">
-            <label class="label">Nombre de la rutina</label>
-            <input class="input" type="text" value="Post-Op ACL Recovery" />
-          </div>
-          <div class="field">
-            <label class="label">Observaciones generales</label>
-            <textarea class="textarea">Controlar extensión terminal. Mantener carga progresiva según tolerancia. Monitorear compensaciones de cadera.</textarea>
-          </div>
-        </div>
-
-        <div class="section-head">
-          <div class="section-title">Bloques de la rutina</div>
-          <button class="section-link">Agregar bloque</button>
-        </div>
-
-        <div class="block-card">
-          <div class="between">
-            <div>
-              <div class="routine-title">Día 1</div>
-              <div class="mini">Activación inicial y movilidad controlada</div>
-            </div>
-            <button class="action-pill">Renombrar</button>
-          </div>
-          <div class="exercise-compact">
-            <div class="between">
-              <div>
-                <div class="exercise-name">Quad Setting Isometric</div>
-                <div class="mini">Isométrico · Rodilla</div>
-              </div>
-              <div class="exercise-actions">
-                <button class="action-pill">Editar</button>
-                <button class="action-pill delete">Quitar</button>
-              </div>
-            </div>
-            <div class="exercise-grid">
-              <div class="metric"><div class="m-label">Series</div><div class="m-value">3</div></div>
-              <div class="metric"><div class="m-label">Reps</div><div class="m-value">10</div></div>
-              <div class="metric"><div class="m-label">Peso</div><div class="m-value">0</div></div>
-            </div>
-            <div class="note-box">Observación: sostener 5 segundos y evitar elevación compensatoria de pelvis.</div>
-          </div>
-          <div class="exercise-compact">
-            <div class="between">
-              <div>
-                <div class="exercise-name">Heel Slides</div>
-                <div class="mini">Movilidad asistida · Rodilla</div>
-              </div>
-              <div class="exercise-actions">
-                <button class="action-pill">Editar</button>
-                <button class="action-pill delete">Quitar</button>
-              </div>
-            </div>
-            <div class="exercise-grid">
-              <div class="metric"><div class="m-label">Series</div><div class="m-value">3</div></div>
-              <div class="metric"><div class="m-label">Reps</div><div class="m-value">10</div></div>
-              <div class="metric"><div class="m-label">Peso</div><div class="m-value">0</div></div>
-            </div>
-            <div class="note-box">Observación: rango según tolerancia. Sin dolor punzante.</div>
-          </div>
-          <div class="routine-actions">
-            <button class="action-pill start" data-open-sheet="library">Agregar ejercicio</button>
-            <button class="action-pill">Reordenar</button>
-          </div>
-        </div>
-
-        <div class="block-card">
-          <div class="between">
-            <div>
-              <div class="routine-title">Día 2</div>
-              <div class="mini">Control motor y estabilidad inicial</div>
-            </div>
-            <button class="action-pill">Renombrar</button>
-          </div>
-          <div class="exercise-compact">
-            <div class="between">
-              <div>
-                <div class="exercise-name">Straight Leg Raise</div>
-                <div class="mini">Fuerza · Cuádriceps</div>
-              </div>
-              <div class="exercise-actions">
-                <button class="action-pill">Editar</button>
-                <button class="action-pill delete">Quitar</button>
-              </div>
-            </div>
-            <div class="exercise-grid">
-              <div class="metric"><div class="m-label">Series</div><div class="m-value">3</div></div>
-              <div class="metric"><div class="m-label">Reps</div><div class="m-value">12</div></div>
-              <div class="metric"><div class="m-label">Peso</div><div class="m-value">2.5</div></div>
-            </div>
-            <div class="note-box">Observación: activar cuádriceps antes de cada elevación. Controlar extensión terminal.</div>
-          </div>
-          <div class="routine-actions">
-            <button class="action-pill start" data-open-sheet="library">Agregar ejercicio</button>
-            <button class="action-pill">Reordenar</button>
-          </div>
-        </div>
-
-        <div class="footer-actions single">
-          <button class="primary-btn">Guardar rutina</button>
-        </div>
-      </section>
-
-      <section class="screen" data-screen="patient-profile">
-        <div class="topbar">
-          <div class="brand">
-            <div class="avatar">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 12c2.76 0 5-2.69 5-6s-2.24-6-5-6-5 2.69-5 6 2.24 6 5 6Zm0 2c-4.42 0-8 2.69-8 6v2h16v-2c0-3.31-3.58-6-8-6Z"/></svg>
-            </div>
-            <div class="brand-stack">
-              <div class="eyebrow">Ficha clínica</div>
-              <div class="title">Marta Gómez</div>
-              <div class="subtitle">Seguimiento individual del paciente</div>
-            </div>
-          </div>
-          <button class="icon-btn" data-go="patients" aria-label="Volver">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="m14 7-5 5 5 5V7Z"/></svg>
-          </button>
-        </div>
-
-        <div class="detail-card">
-          <div class="detail-list">
-            <div class="detail-row"><div class="k">Edad</div><div class="v">29 años</div></div>
-            <div class="detail-row"><div class="k">Teléfono</div><div class="v">+54 299 555 1020</div></div>
-            <div class="detail-row"><div class="k">Email</div><div class="v">marta.gomez@email.com</div></div>
-            <div class="detail-row"><div class="k">Fase</div><div class="v">Reacondicionamiento inicial</div></div>
-            <div class="detail-row"><div class="k">Antecedentes</div><div class="v">Reconstrucción LCA, sin comorbilidades relevantes</div></div>
-            <div class="detail-row"><div class="k">Observaciones</div><div class="v">Buena adherencia. Déficit leve en extensión terminal.</div></div>
-          </div>
-        </div>
-
-        <div class="section-head"><div class="section-title">Rutinas asociadas</div></div>
-        <div class="routine-card">
-          <div class="head">
-            <div>
-              <div class="routine-title">Post-Op ACL Recovery</div>
-              <div class="mini">Actualizada hoy · 2 bloques activos</div>
-            </div>
-            <span class="badge active">En uso</span>
-          </div>
-        </div>
-
-        <div class="section-head"><div class="section-title">Historial de sesiones</div></div>
-        <div class="routine-card">
-          <div class="head">
-            <div>
-              <div class="routine-title">31/03 · Sesión 14</div>
-              <div class="mini">Mejor control en SLR. Toleró 2.5 kg sin dolor.</div>
-            </div>
-            <span class="badge">35 min</span>
-          </div>
-        </div>
-        <div class="routine-card">
-          <div class="head">
-            <div>
-              <div class="routine-title">29/03 · Sesión 13</div>
-              <div class="mini">Persistió rigidez inicial. Mejoró al final de la sesión.</div>
-            </div>
-            <span class="badge">33 min</span>
-          </div>
-        </div>
-
-        <div class="section-head"><div class="section-title">Evolución reciente</div></div>
-        <div class="detail-card">
-          <div class="mini">Dolor subjetivo ↓ · Extensión activa ↑ · Mayor tolerancia a estabilidad básica y carga progresiva.</div>
-        </div>
-      </section>
-    </main>
-
-    <button class="fab" data-go="editor" aria-label="Crear">
-      <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
-    </button>
-
-    <nav class="bottom-nav">
-      <button class="nav-btn active" data-nav="home">
-        <span class="nav-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 3 3 10v11h6v-7h6v7h6V10l-9-7Z"/></svg></span>
-        <span>Inicio</span>
-      </button>
-      <button class="nav-btn" data-nav="routines">
-        <span class="nav-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M3 5h18v4H3V5Zm0 5h18v4H3v-4Zm0 5h18v4H3v-4Z"/></svg></span>
-        <span>Rutinas</span>
-      </button>
-      <button class="nav-btn" data-nav="execution">
-        <span class="nav-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
-        <span>Ejecución</span>
-      </button>
-      <button class="nav-btn" data-nav="patients">
-        <span class="nav-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.79 2.99-4S17.66 3 16 3s-3 1.79-3 4 1.34 4 3 4Zm-8 0c1.66 0 2.99-1.79 2.99-4S9.66 3 8 3 5 4.79 5 7s1.34 4 3 4Zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.92 1.97 3.45V19H23v-2.5c0-2.33-4.67-3.5-7-3.5Z"/></svg></span>
-        <span>Pacientes</span>
-      </button>
-      <button class="nav-btn" data-nav="more">
-        <span class="nav-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg></span>
-        <span>Más</span>
-      </button>
-    </nav>
-
-    <div class="modal-backdrop" id="sheetBackdrop">
-      <div class="sheet">
-        <div class="grabber"></div>
-        <div id="sheetTemplates" class="sheet-view hidden">
-          <div class="between" style="margin-bottom:14px">
-            <div>
-              <div class="eyebrow">Plantillas</div>
-              <div class="title" style="font-size:1.2rem">Biblioteca reutilizable</div>
-            </div>
-            <button class="icon-btn close-sheet" style="width:40px;height:40px;border-radius:14px">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.3 5.71 12 12l6.3 6.29-1.42 1.41L10.59 13.4 4.29 19.7 2.88 18.29 9.17 12 2.88 5.71 4.29 4.3l6.3 6.29 6.29-6.3 1.42 1.42Z"/></svg>
-            </button>
-          </div>
-          <div class="library-list">
-            <div class="library-item">
-              <div class="l-main">
-                <div class="name">Plantilla rodilla fase inicial</div>
-                <div class="meta">Movilidad, isométricos y control de carga</div>
-              </div>
-              <button class="plus-btn">+</button>
-            </div>
-            <div class="library-item">
-              <div class="l-main">
-                <div class="name">Plantilla hombro post inmovilización</div>
-                <div class="meta">Recuperación de rango y control escapular</div>
-              </div>
-              <button class="plus-btn">+</button>
-            </div>
-            <div class="library-item">
-              <div class="l-main">
-                <div class="name">Plantilla lumbalgia control motor</div>
-                <div class="meta">Respiración, core y patrón de bisagra</div>
-              </div>
-              <button class="plus-btn">+</button>
-            </div>
-          </div>
-        </div>
-
-        <div id="sheetLibrary" class="sheet-view hidden">
-          <div class="between" style="margin-bottom:14px">
-            <div>
-              <div class="eyebrow">Biblioteca de ejercicios</div>
-              <div class="title" style="font-size:1.2rem">Seleccionar ejercicio</div>
-              <div class="mini" id="libraryCount">0 ejercicios cargados</div>
-            </div>
-            <button class="icon-btn close-sheet" style="width:40px;height:40px;border-radius:14px">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.3 5.71 12 12l6.3 6.29-1.42 1.41L10.59 13.4 4.29 19.7 2.88 18.29 9.17 12 2.88 5.71 4.29 4.3l6.3 6.29 6.29-6.3 1.42 1.42Z"/></svg>
-            </button>
-          </div>
-          <div class="searchbar">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
-            <input type="text" id="librarySearch" placeholder="Buscar ejercicio, grupo o tipo" />
-          </div>
-          <div class="filter-row" id="groupFilters">
-            <button class="chip active" data-group="Todos">Todos</button>
-            <button class="chip" data-group="Escápula">Escápula</button>
-            <button class="chip" data-group="Core">Core</button>
-            <button class="chip" data-group="Piernas">Piernas</button>
-            <button class="chip" data-group="Cadena posterior">Cadena posterior</button>
-            <button class="chip" data-group="Brazos">Brazos</button>
-          </div>
-          <div class="filter-row" id="typeFilters">
+        <div id="pane-prokinesis" class="libpane">
+          <div class="searchbar"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input id="searchProkinesis" type="text" placeholder="Buscar ejercicio en Prokinesis"></div>
+          <div class="filter-row" id="pkFiltersType">
             <button class="chip active" data-type="Todos">Todos</button>
             <button class="chip" data-type="Movilidad">Movilidad</button>
             <button class="chip" data-type="Estabilidad">Estabilidad</button>
@@ -1330,266 +265,212 @@
             <button class="chip" data-type="Integrado">Integrado</button>
             <button class="chip" data-type="Flexibilidad">Flexibilidad</button>
           </div>
-          <div class="library-list" id="libraryList"></div>
+          <div class="library-list" id="listProkinesis"></div>
         </div>
 
-        <div id="sheetBranding" class="sheet-view hidden">
-          <div class="between" style="margin-bottom:14px">
-            <div>
-              <div class="eyebrow">Personalización</div>
-              <div class="title" style="font-size:1.2rem">Textos del inicio</div>
-            </div>
-            <button class="icon-btn close-sheet" style="width:40px;height:40px;border-radius:14px">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.3 5.71 12 12l6.3 6.29-1.42 1.41L10.59 13.4 4.29 19.7 2.88 18.29 9.17 12 2.88 5.71 4.29 4.3l6.3 6.29 6.29-6.3 1.42 1.42Z"/></svg>
-            </button>
-          </div>
-          <div class="form-card">
-            <div class="field">
-              <label class="label">Texto superior</label>
-              <input class="input" type="text" id="brandingEyebrowInput" value="Panel clínico" />
-            </div>
-            <div class="field">
-              <label class="label">Saludo principal</label>
-              <input class="input" type="text" id="brandingTitleInput" value="Buen día, Dr. Ríos" />
-            </div>
-            <div class="field">
-              <label class="label">Subtítulo</label>
-              <textarea class="textarea" id="brandingSubtitleInput">Control de pacientes, rutinas y sesiones activas</textarea>
-            </div>
-            <div class="footer-actions single">
-              <button class="primary-btn" id="saveBrandingBtn">Guardar textos</button>
-            </div>
-          </div>
+        <div id="pane-ces757" class="libpane hidden">
+          <div class="searchbar"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input id="searchCES" type="text" placeholder="Buscar ejercicio en CES757"></div>
+          <div class="library-list" id="listCES"></div>
+        </div>
+      </div>
+
+      <div id="sheetBranding" class="sheet-view hidden">
+        <div class="between" style="margin-bottom:14px"><div><div class="eyebrow">Personalización</div><div class="title">Textos del inicio</div></div><button class="icon-btn close-sheet" style="width:40px;height:40px;border-radius:14px"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.3 5.71 12 12l6.3 6.29-1.42 1.41L10.59 13.4 4.29 19.7 2.88 18.29 9.17 12 2.88 5.71 4.29 4.3l6.3 6.29 6.29-6.3 1.42 1.42Z"/></svg></button></div>
+        <div class="form-card">
+          <div class="field"><label class="label">Texto superior</label><input class="input" type="text" id="brandingEyebrowInput" value="Panel clínico"></div>
+          <div class="field"><label class="label">Saludo principal</label><input class="input" type="text" id="brandingTitleInput" value="Buen día, Dr. Ríos"></div>
+          <div class="field"><label class="label">Subtítulo</label><textarea class="textarea" id="brandingSubtitleInput">Control de pacientes, rutinas y sesiones activas</textarea></div>
+          <div class="footer-actions single"><button class="primary-btn" id="saveBrandingBtn">Guardar textos</button></div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <script>
-    const screens = [...document.querySelectorAll('.screen')];
-    const navButtons = [...document.querySelectorAll('[data-nav]')];
-    const goButtons = [...document.querySelectorAll('[data-go]')];
-    const app = document.getElementById('app');
+<script>
+const prokinesis = [{"name":"Elongación fascia sentado","category":"Movilidad y activación escapular","group":"Escápula","type":"Movilidad"},{"name":"Elongación psoas dinámica","category":"Movilidad y activación escapular","group":"Piernas","type":"Movilidad"},{"name":"Estocada con rotación contraria con pesa rusa","category":"Movilidad y activación escapular","group":"Piernas","type":"Movilidad"},{"name":"Postura caballero manos juntas movilidad escapular","category":"Movilidad y activación escapular","group":"Escápula","type":"Movilidad"},{"name":"Spiderman (toco tobillos rotando)","category":"Movilidad y activación escapular","group":"Core","type":"Movilidad"},{"name":"Tocar rodillas en rotación","category":"Movilidad y activación escapular","group":"Core","type":"Movilidad"},{"name":"Espinales + movilidad escapular alternada","category":"Movilidad y activación escapular","group":"Espalda","type":"Movilidad"},{"name":"Retracción escapular con banda en codos","category":"Movilidad y activación escapular","group":"Escápula","type":"Movilidad"},{"name":"Rotación externa de hombro con banda","category":"Movilidad y activación escapular","group":"Brazos","type":"Movilidad"},{"name":"Superman","category":"Core / escápula / estabilidad","group":"Core","type":"Estabilidad"},{"name":"Plancha alta con transferencia de mancuerna","category":"Core / escápula / estabilidad","group":"Core","type":"Estabilidad"},{"name":"Plancha con apertura lateral y diagonal con banda","category":"Core / escápula / estabilidad","group":"Core","type":"Estabilidad"},{"name":"Plancha baja con rotación escapular con mancuerna","category":"Core / escápula / estabilidad","group":"Escápula","type":"Estabilidad"},{"name":"Plancha alta a plancha baja con rodillas al pecho","category":"Core / escápula / estabilidad","group":"Core","type":"Estabilidad"},{"name":"Oblicuos con pesa rusa","category":"Core / escápula / estabilidad","group":"Core","type":"Estabilidad"},{"name":"Bicho muerto (y sus variantes)","category":"Core / escápula / estabilidad","group":"Core","type":"Estabilidad"},{"name":"Rotaciones con banda arrodillado (Pallof press)","category":"Core / escápula / estabilidad","group":"Core","type":"Estabilidad"},{"name":"Plancha lateral con mancuerna y flexión de rodilla","category":"Core / escápula / estabilidad","group":"Core","type":"Estabilidad"},{"name":"Abductores en plancha lateral con disco","category":"Core / escápula / estabilidad","group":"Piernas","type":"Estabilidad"},{"name":"Vitalización en caballero con kettlebell invertida","category":"Core / escápula / estabilidad","group":"Escápula","type":"Estabilidad"},{"name":"Plancha y pies (adentro, afuera, arriba y abajo)","category":"Core / escápula / estabilidad","group":"Core","type":"Estabilidad"},{"name":"Plancha y rodillas al medio y afuera","category":"Core / escápula / estabilidad","group":"Core","type":"Estabilidad"},{"name":"Aductores banco plancha lateral (Copenhague)","category":"Core / escápula / estabilidad","group":"Piernas","type":"Estabilidad"},{"name":"Bisagra de cadera con estiramiento posterior","category":"Movilidad cadena posterior","group":"Cadena posterior","type":"Flexibilidad"},{"name":"Elongación fascia (aguantando respiración)","category":"Movilidad cadena posterior","group":"Cadena posterior","type":"Flexibilidad"},{"name":"Elongación de columna en cruz","category":"Movilidad cadena posterior","group":"Espalda","type":"Flexibilidad"},{"name":"Saltos laterales alternados sobre cajón","category":"Fuerza tren inferior / potencia","group":"Piernas","type":"Fuerza"},{"name":"Peso muerto con barra","category":"Fuerza tren inferior / potencia","group":"Cadena posterior","type":"Fuerza"},{"name":"Búlgaras con vuelos laterales","category":"Fuerza tren inferior / potencia","group":"Piernas","type":"Fuerza"},{"name":"Sentadilla tocando tobillos alternados","category":"Fuerza tren inferior / potencia","group":"Piernas","type":"Fuerza"},{"name":"Desplazamiento lateral con banda + sentadilla","category":"Fuerza tren inferior / potencia","group":"Piernas","type":"Fuerza"},{"name":"Sentadilla con pesa rusa y banda en los pies","category":"Fuerza tren inferior / potencia","group":"Piernas","type":"Fuerza"},{"name":"Sentadillas en TRX","category":"Fuerza tren inferior / potencia","group":"Piernas","type":"Fuerza"},{"name":"Subida al cajón con mancuernas + press hombro","category":"Fuerza tren inferior / potencia","group":"Piernas","type":"Integrado"},{"name":"Subida al cajón con pesa rusa","category":"Fuerza tren inferior / potencia","group":"Piernas","type":"Fuerza"},{"name":"Sentadilla + saltos potencia","category":"Fuerza tren inferior / potencia","group":"Piernas","type":"Fuerza"},{"name":"Saltos a la barra a una pierna","category":"Fuerza tren inferior / potencia","group":"Piernas","type":"Fuerza"},{"name":"Sentadilla con barra","category":"Fuerza tren inferior / potencia","group":"Piernas","type":"Fuerza"},{"name":"Dominadas","category":"Fuerza tren superior","group":"Brazos","type":"Fuerza"},{"name":"Dominadas con peso","category":"Fuerza tren superior","group":"Brazos","type":"Fuerza"},{"name":"Aperturas de pecho en banco o pelota","category":"Fuerza tren superior","group":"Brazos","type":"Fuerza"},{"name":"Flexiones con remo","category":"Fuerza tren superior","group":"Brazos","type":"Fuerza"},{"name":"Flexiones de brazos con flexión de rodilla explosiva","category":"Fuerza tren superior","group":"Brazos","type":"Fuerza"},{"name":"Remo con banda elástica","category":"Fuerza tren superior","group":"Espalda","type":"Fuerza"},{"name":"Pecho / remo en TRX","category":"Fuerza tren superior","group":"Espalda","type":"Fuerza"},{"name":"Press de hombro con banda en la panza","category":"Fuerza tren superior","group":"Brazos","type":"Fuerza"},{"name":"Estocada con press de hombro unilateral","category":"Fuerza integrada (piernas + brazos)","group":"Piernas","type":"Integrado"},{"name":"Peso muerto con arranque de potencia unilateral","category":"Fuerza integrada (piernas + brazos)","group":"Cadena posterior","type":"Integrado"},{"name":"Peso muerto unipodal + press de hombros potente","category":"Fuerza integrada (piernas + brazos)","group":"Cadena posterior","type":"Integrado"},{"name":"Peso muerto unipodal + bíceps","category":"Fuerza integrada (piernas + brazos)","group":"Cadena posterior","type":"Integrado"},{"name":"Peso muerto unipodal + remo","category":"Fuerza integrada (piernas + brazos)","group":"Cadena posterior","type":"Integrado"},{"name":"Puente glúteo unilateral con press de pecho alternado","category":"Fuerza integrada (piernas + brazos)","group":"Piernas","type":"Integrado"},{"name":"Press en piso + puente glúteo (press pecho explosivo)","category":"Fuerza integrada (piernas + brazos)","group":"Piernas","type":"Integrado"},{"name":"Estocada + rotaciones con disco o pesa","category":"Fuerza integrada (piernas + brazos)","group":"Piernas","type":"Integrado"},{"name":"Arrodillado a parado con bíceps + hombro","category":"Fuerza integrada (piernas + brazos)","group":"Piernas","type":"Integrado"},{"name":"Burpees","category":"Fuerza integrada (piernas + brazos)","group":"Piernas","type":"Integrado"}];
+const ces757 = [];
 
-    function showScreen(name){
-      screens.forEach(s => s.classList.toggle('active', s.dataset.screen === name));
-      navButtons.forEach(b => b.classList.toggle('active', b.dataset.nav === name));
-      const active = screens.find(s => s.dataset.screen === name);
-      if(active) active.scrollTo({top:0, behavior:'instant'});
-    }
+const screens = [...document.querySelectorAll('.screen')];
+const navButtons = [...document.querySelectorAll('[data-nav]')];
+const goButtons = [...document.querySelectorAll('[data-go]')];
 
-    navButtons.forEach(btn => {
-      btn.addEventListener('click', () => showScreen(btn.dataset.nav));
-    });
-    goButtons.forEach(btn => {
-      btn.addEventListener('click', () => showScreen(btn.dataset.go));
-    });
+function showScreen(name) {
+  screens.forEach(s => s.classList.toggle('active', s.dataset.screen === name));
+  navButtons.forEach(b => b.classList.toggle('active', b.dataset.nav === name));
+  const active = screens.find(s => s.dataset.screen === name);
+  if (active) active.scrollTop = 0;
+}
 
-    const sheetBackdrop = document.getElementById('sheetBackdrop');
-    const sheetTemplates = document.getElementById('sheetTemplates');
-    const sheetLibrary = document.getElementById('sheetLibrary');
-    const sheetBranding = document.getElementById('sheetBranding');
-    const sheetViews = [sheetTemplates, sheetLibrary, sheetBranding];
+navButtons.forEach(btn => btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); showScreen(btn.dataset.nav); }));
+goButtons.forEach(btn => btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); showScreen(btn.dataset.go); }));
 
-    function openSheet(type){
-      sheetViews.forEach(v => v.classList.add('hidden'));
-      if(type === 'templates') sheetTemplates.classList.remove('hidden');
-      if(type === 'library') sheetLibrary.classList.remove('hidden');
-      if(type === 'branding') sheetBranding.classList.remove('hidden');
-      sheetBackdrop.classList.add('open');
-    }
-    function closeSheet(){
-      sheetBackdrop.classList.remove('open');
-    }
+const sheetBackdrop = document.getElementById('sheetBackdrop');
+const views = {
+  templates: document.getElementById('sheetTemplates'),
+  library: document.getElementById('sheetLibrary'),
+  branding: document.getElementById('sheetBranding')
+};
+function openSheet(name) {
+  Object.values(views).forEach(v => v.classList.add('hidden'));
+  views[name].classList.remove('hidden');
+  sheetBackdrop.classList.add('open');
+}
+function closeSheet() { sheetBackdrop.classList.remove('open'); }
+document.querySelectorAll('[data-open-sheet]').forEach(btn => btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); openSheet(btn.dataset.openSheet); }));
+document.querySelectorAll('.close-sheet').forEach(btn => btn.addEventListener('click', closeSheet));
+sheetBackdrop.addEventListener('click', e => { if (e.target === sheetBackdrop) closeSheet(); });
 
-    document.querySelectorAll('[data-open-sheet]').forEach(btn => {
-      btn.addEventListener('click', () => openSheet(btn.dataset.openSheet));
-    });
-    document.querySelectorAll('.close-sheet').forEach(btn => btn.addEventListener('click', closeSheet));
-    sheetBackdrop.addEventListener('click', (e) => {
-      if(e.target === sheetBackdrop) closeSheet();
-    });
+const homeEyebrow = document.getElementById('homeEyebrow');
+const homeGreeting = document.getElementById('homeGreeting');
+const homeSubtitle = document.getElementById('homeSubtitle');
+const brandingEyebrowInput = document.getElementById('brandingEyebrowInput');
+const brandingTitleInput = document.getElementById('brandingTitleInput');
+const brandingSubtitleInput = document.getElementById('brandingSubtitleInput');
+document.getElementById('saveBrandingBtn').addEventListener('click', () => {
+  homeEyebrow.textContent = brandingEyebrowInput.value.trim() || 'Panel clínico';
+  homeGreeting.textContent = brandingTitleInput.value.trim() || 'Buen día, Dr. Ríos';
+  homeSubtitle.textContent = brandingSubtitleInput.value.trim() || 'Control de pacientes, rutinas y sesiones activas';
+  closeSheet();
+});
 
-    const homeEyebrow = document.getElementById('homeEyebrow');
-    const homeGreeting = document.getElementById('homeGreeting');
-    const homeSubtitle = document.getElementById('homeSubtitle');
-    const brandingEyebrowInput = document.getElementById('brandingEyebrowInput');
-    const brandingTitleInput = document.getElementById('brandingTitleInput');
-    const brandingSubtitleInput = document.getElementById('brandingSubtitleInput');
-    const saveBrandingBtn = document.getElementById('saveBrandingBtn');
+const libTabs = [...document.querySelectorAll('[data-libtab]')];
+const paneProkinesis = document.getElementById('pane-prokinesis');
+const paneCES = document.getElementById('pane-ces757');
+const libraryCount = document.getElementById('libraryCount');
+let activeType = 'Todos';
+let activeTab = 'prokinesis';
 
-    function applyBranding(){
-      homeEyebrow.textContent = brandingEyebrowInput.value.trim() || 'Panel clínico';
-      homeGreeting.textContent = brandingTitleInput.value.trim() || 'Buen día, Dr. Ríos';
-      homeSubtitle.textContent = brandingSubtitleInput.value.trim() || 'Control de pacientes, rutinas y sesiones activas';
-    }
+function cardMarkup(item, meta) {
+  return `<div class="library-item"><div class="l-main"><div class="name">${item.name}</div><div class="meta">${meta}</div></div><button class="plus-btn">+</button></div>`;
+}
 
-    saveBrandingBtn.addEventListener('click', () => {
-      applyBranding();
-      closeSheet();
-    });
-    applyBranding();
+function renderProkinesis() {
+  const q = (document.getElementById('searchProkinesis').value || '').trim().toLowerCase();
+  const filtered = prokinesis.filter(x => (activeType === 'Todos' || x.type === activeType) && (!q || `${x.name} ${x.category} ${x.group} ${x.type}`.toLowerCase().includes(q)));
+  document.getElementById('listProkinesis').innerHTML = filtered.map(x => cardMarkup(x, `${x.type} · ${x.group} · ${x.category}`)).join('') || '<div class="detail-card"><div class="mini">No hay coincidencias.</div></div>';
+  if (activeTab === 'prokinesis') libraryCount.textContent = `${filtered.length} ejercicios cargados`;
+}
 
-    const exerciseLibrary = [
-      { name:'Elongación fascia sentado', category:'Movilidad y activación escapular', group:'Escápula', type:'Movilidad' },
-      { name:'Elongación psoas dinámica', category:'Movilidad y activación escapular', group:'Piernas', type:'Movilidad' },
-      { name:'Estocada con rotación contraria con pesa rusa', category:'Movilidad y activación escapular', group:'Piernas', type:'Movilidad' },
-      { name:'Postura caballero manos juntas movilidad escapular', category:'Movilidad y activación escapular', group:'Escápula', type:'Movilidad' },
-      { name:'Spiderman (toco tobillos rotando)', category:'Movilidad y activación escapular', group:'Core', type:'Movilidad' },
-      { name:'Tocar rodillas en rotación', category:'Movilidad y activación escapular', group:'Core', type:'Movilidad' },
-      { name:'Espinales + movilidad escapular alternada', category:'Movilidad y activación escapular', group:'Espalda', type:'Movilidad' },
-      { name:'Retracción escapular con banda en codos', category:'Movilidad y activación escapular', group:'Escápula', type:'Movilidad' },
-      { name:'Rotación externa de hombro con banda', category:'Movilidad y activación escapular', group:'Brazos', type:'Movilidad' },
-      { name:'Superman', category:'Core / escápula / estabilidad', group:'Core', type:'Estabilidad' },
-      { name:'Plancha alta con transferencia de mancuerna', category:'Core / escápula / estabilidad', group:'Core', type:'Estabilidad' },
-      { name:'Plancha con apertura lateral y diagonal con banda', category:'Core / escápula / estabilidad', group:'Core', type:'Estabilidad' },
-      { name:'Plancha baja con rotación escapular con mancuerna', category:'Core / escápula / estabilidad', group:'Escápula', type:'Estabilidad' },
-      { name:'Plancha alta a plancha baja con rodillas al pecho', category:'Core / escápula / estabilidad', group:'Core', type:'Estabilidad' },
-      { name:'Oblicuos con pesa rusa', category:'Core / escápula / estabilidad', group:'Core', type:'Estabilidad' },
-      { name:'Bicho muerto (y sus variantes)', category:'Core / escápula / estabilidad', group:'Core', type:'Estabilidad' },
-      { name:'Rotaciones con banda arrodillado (Pallof press)', category:'Core / escápula / estabilidad', group:'Core', type:'Estabilidad' },
-      { name:'Plancha lateral con mancuerna y flexión de rodilla', category:'Core / escápula / estabilidad', group:'Core', type:'Estabilidad' },
-      { name:'Abductores en plancha lateral con disco', category:'Core / escápula / estabilidad', group:'Piernas', type:'Estabilidad' },
-      { name:'Vitalización en caballero con kettlebell invertida', category:'Core / escápula / estabilidad', group:'Escápula', type:'Estabilidad' },
-      { name:'Plancha y pies (adentro, afuera, arriba y abajo)', category:'Core / escápula / estabilidad', group:'Core', type:'Estabilidad' },
-      { name:'Plancha y rodillas al medio y afuera', category:'Core / escápula / estabilidad', group:'Core', type:'Estabilidad' },
-      { name:'Aductores banco plancha lateral (Copenhague)', category:'Core / escápula / estabilidad', group:'Piernas', type:'Estabilidad' },
-      { name:'Bisagra de cadera con estiramiento posterior', category:'Movilidad cadena posterior', group:'Cadena posterior', type:'Flexibilidad' },
-      { name:'Elongación fascia (aguantando respiración)', category:'Movilidad cadena posterior', group:'Cadena posterior', type:'Flexibilidad' },
-      { name:'Elongación de columna en cruz', category:'Movilidad cadena posterior', group:'Espalda', type:'Flexibilidad' },
-      { name:'Saltos laterales alternados sobre cajón', category:'Fuerza tren inferior / potencia', group:'Piernas', type:'Fuerza' },
-      { name:'Peso muerto con barra', category:'Fuerza tren inferior / potencia', group:'Cadena posterior', type:'Fuerza' },
-      { name:'Búlgaras con vuelos laterales', category:'Fuerza tren inferior / potencia', group:'Piernas', type:'Fuerza' },
-      { name:'Sentadilla tocando tobillos alternados', category:'Fuerza tren inferior / potencia', group:'Piernas', type:'Fuerza' },
-      { name:'Desplazamiento lateral con banda + sentadilla', category:'Fuerza tren inferior / potencia', group:'Piernas', type:'Fuerza' },
-      { name:'Sentadilla con pesa rusa y banda en los pies', category:'Fuerza tren inferior / potencia', group:'Piernas', type:'Fuerza' },
-      { name:'Sentadillas en TRX', category:'Fuerza tren inferior / potencia', group:'Piernas', type:'Fuerza' },
-      { name:'Subida al cajón con mancuernas + press hombro', category:'Fuerza tren inferior / potencia', group:'Piernas', type:'Integrado' },
-      { name:'Subida al cajón con pesa rusa', category:'Fuerza tren inferior / potencia', group:'Piernas', type:'Fuerza' },
-      { name:'Sentadilla + saltos potencia', category:'Fuerza tren inferior / potencia', group:'Piernas', type:'Fuerza' },
-      { name:'Saltos a la barra a una pierna', category:'Fuerza tren inferior / potencia', group:'Piernas', type:'Fuerza' },
-      { name:'Sentadilla con barra', category:'Fuerza tren inferior / potencia', group:'Piernas', type:'Fuerza' },
-      { name:'Dominadas', category:'Fuerza tren superior', group:'Brazos', type:'Fuerza' },
-      { name:'Dominadas con peso', category:'Fuerza tren superior', group:'Brazos', type:'Fuerza' },
-      { name:'Aperturas de pecho en banco o pelota', category:'Fuerza tren superior', group:'Brazos', type:'Fuerza' },
-      { name:'Flexiones con remo', category:'Fuerza tren superior', group:'Brazos', type:'Fuerza' },
-      { name:'Flexiones de brazos con flexión de rodilla explosiva', category:'Fuerza tren superior', group:'Brazos', type:'Fuerza' },
-      { name:'Remo con banda elástica', category:'Fuerza tren superior', group:'Espalda', type:'Fuerza' },
-      { name:'Pecho / remo en TRX', category:'Fuerza tren superior', group:'Espalda', type:'Fuerza' },
-      { name:'Press de hombro con banda en la panza', category:'Fuerza tren superior', group:'Brazos', type:'Fuerza' },
-      { name:'Estocada con press de hombro unilateral', category:'Fuerza integrada (piernas + brazos)', group:'Piernas', type:'Integrado' },
-      { name:'Peso muerto con arranque de potencia unilateral', category:'Fuerza integrada (piernas + brazos)', group:'Cadena posterior', type:'Integrado' },
-      { name:'Peso muerto unipodal + press de hombros potente', category:'Fuerza integrada (piernas + brazos)', group:'Cadena posterior', type:'Integrado' },
-      { name:'Peso muerto unipodal + bíceps', category:'Fuerza integrada (piernas + brazos)', group:'Cadena posterior', type:'Integrado' },
-      { name:'Peso muerto unipodal + remo', category:'Fuerza integrada (piernas + brazos)', group:'Cadena posterior', type:'Integrado' },
-      { name:'Puente glúteo unilateral con press de pecho alternado', category:'Fuerza integrada (piernas + brazos)', group:'Piernas', type:'Integrado' },
-      { name:'Press en piso + puente glúteo (press pecho explosivo)', category:'Fuerza integrada (piernas + brazos)', group:'Piernas', type:'Integrado' },
-      { name:'Estocada + rotaciones con disco o pesa', category:'Fuerza integrada (piernas + brazos)', group:'Piernas', type:'Integrado' },
-      { name:'Arrodillado a parado con bíceps + hombro', category:'Fuerza integrada (piernas + brazos)', group:'Piernas', type:'Integrado' },
-      { name:'Burpees', category:'Fuerza integrada (piernas + brazos)', group:'Piernas', type:'Integrado' }
-    ];
+function renderCES() {
+  const q = (document.getElementById('searchCES').value || '').trim().toLowerCase();
+  const filtered = ces757.filter(x => !q || `${x.name} ${x.category}`.toLowerCase().includes(q));
+  document.getElementById('listCES').innerHTML = filtered.map(x => cardMarkup(x, x.category)).join('') || '<div class="detail-card"><div class="mini">No hay coincidencias.</div></div>';
+  if (activeTab === 'ces757') libraryCount.textContent = `${filtered.length} ejercicios cargados`;
+}
 
-    const libraryList = document.getElementById('libraryList');
-    const librarySearch = document.getElementById('librarySearch');
-    const libraryCount = document.getElementById('libraryCount');
-    const groupFilters = [...document.querySelectorAll('#groupFilters .chip')];
-    const typeFilters = [...document.querySelectorAll('#typeFilters .chip')];
-    let activeGroup = 'Todos';
-    let activeType = 'Todos';
+libTabs.forEach(btn => btn.addEventListener('click', () => {
+  activeTab = btn.dataset.libtab;
+  libTabs.forEach(b => b.classList.toggle('active', b === btn));
+  paneProkinesis.classList.toggle('hidden', activeTab !== 'prokinesis');
+  paneCES.classList.toggle('hidden', activeTab !== 'ces757');
+  if (activeTab === 'prokinesis') renderProkinesis();
+  else renderCES();
+}));
 
-    function renderLibrary(){
-      const term = (librarySearch.value || '').trim().toLowerCase();
-      const filtered = exerciseLibrary.filter(item => {
-        const matchGroup = activeGroup === 'Todos' || item.group === activeGroup;
-        const matchType = activeType === 'Todos' || item.type === activeType;
-        const matchTerm = !term || [item.name, item.category, item.group, item.type].join(' ').toLowerCase().includes(term);
-        return matchGroup && matchType && matchTerm;
-      });
+document.getElementById('searchProkinesis').addEventListener('input', renderProkinesis);
+document.getElementById('searchCES').addEventListener('input', renderCES);
+document.querySelectorAll('#pkFiltersType .chip').forEach(btn => btn.addEventListener('click', () => {
+  activeType = btn.dataset.type;
+  document.querySelectorAll('#pkFiltersType .chip').forEach(b => b.classList.toggle('active', b === btn));
+  renderProkinesis();
+}));
+renderProkinesis();
+renderCES();
 
-      libraryCount.textContent = `${filtered.length} ejercicios cargados`;
-      libraryList.innerHTML = filtered.map(item => `
-        <div class="library-item">
-          <div class="l-main">
-            <div class="name">${item.name}</div>
-            <div class="meta">${item.type} · ${item.group} · ${item.category}</div>
-          </div>
-          <button class="plus-btn">+</button>
-        </div>
-      `).join('') || `
-        <div class="detail-card">
-          <div class="mini">No hay coincidencias con ese filtro.</div>
-        </div>
-      `;
-    }
+document.querySelectorAll('[data-completable]').forEach(item => item.addEventListener('click', (e) => {
+  const loadBtn = e.target.closest('.load-data-btn');
+  if (loadBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    const title = item.querySelector('.exercise-name')?.textContent || 'Ejercicio';
+    alert(`Carga de datos para: ${title}`);
+    return;
+  }
+  item.classList.toggle('completed');
+  const check = item.querySelector('.check');
+  check.textContent = item.classList.contains('completed') ? '✓' : '';
+  updateProgress();
+}));
 
-    groupFilters.forEach(btn => {
-      btn.addEventListener('click', () => {
-        activeGroup = btn.dataset.group;
-        groupFilters.forEach(chip => chip.classList.toggle('active', chip === btn));
-        renderLibrary();
-      });
-    });
+let seconds = 24 * 60 + 42;
+let running = true;
+const homeTimer = document.getElementById('homeTimer');
+const executionTimer = document.getElementById('executionTimer');
+const sessionState = document.getElementById('sessionState');
+function pad(n) { return String(n).padStart(2, '0'); }
+function renderTimer() {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  const txt = `${pad(m)}:${pad(s)}`;
+  homeTimer.textContent = txt;
+  executionTimer.textContent = txt;
+}
+setInterval(() => { if (running) { seconds += 1; renderTimer(); } }, 1000);
+renderTimer();
 
-    typeFilters.forEach(btn => {
-      btn.addEventListener('click', () => {
-        activeType = btn.dataset.type;
-        typeFilters.forEach(chip => chip.classList.toggle('active', chip === btn));
-        renderLibrary();
-      });
-    });
+function updateProgress() {
+  const items = [...document.querySelectorAll('[data-completable]')];
+  const alreadyDone = 2;
+  const dynamicDone = items.filter(i => i.classList.contains('completed')).length;
+  const total = items.length + alreadyDone;
+  const done = alreadyDone + dynamicDone;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = pct + '%';
+}
+updateProgress();
 
-    librarySearch.addEventListener('input', renderLibrary);
-    renderLibrary();
+document.getElementById('pauseBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  running = false;
+  sessionState.textContent = 'Sesión pausada';
+  sessionState.classList.remove('active');
+  sessionState.classList.add('paused');
+});
+document.getElementById('resumeBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  running = true;
+  sessionState.textContent = 'Sesión activa';
+  sessionState.classList.remove('paused');
+  sessionState.classList.add('active');
+});
 
-    const completable = document.querySelectorAll('[data-completable]');
-    completable.forEach(item => {
-      item.addEventListener('click', () => {
-        item.classList.toggle('completed');
-        const check = item.querySelector('.check');
-        check.textContent = item.classList.contains('completed') ? '✓' : '';
-      });
-    });
+document.getElementById('finishSessionBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  running = false;
+  sessionState.textContent = 'Sesión finalizada';
+  sessionState.classList.remove('active','paused');
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressText').textContent = '100%';
+  alert('Sesión finalizada correctamente');
+});
 
-    let seconds = 24 * 60 + 42;
-    let running = true;
-    const homeTimer = document.getElementById('homeTimer');
-    const executionTimer = document.getElementById('executionTimer');
-    const sessionState = document.getElementById('sessionState');
-    const pauseBtn = document.getElementById('pauseBtn');
-    const resumeBtn = document.getElementById('resumeBtn');
-
-    function pad(n){ return String(n).padStart(2,'0'); }
-    function renderTimer(){
-      const m = Math.floor(seconds / 60);
-      const s = seconds % 60;
-      const text = `${pad(m)}:${pad(s)}`;
-      homeTimer.textContent = text;
-      executionTimer.textContent = text;
-    }
-    setInterval(() => {
-      if(running){
-        seconds++;
-        renderTimer();
+['homeNoteBtn','sessionMenuBtn','addObservationBtn','quadNoteBtn','repsBadgeBtn','newPatientBtn','createPatientBtn','settingsBtn','exportWhatsappBtn','addBlockBtn','saveRoutineBtn','dupRoutineBtn','delRoutineBtn'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (id === 'delRoutineBtn') {
+        alert('Rutina eliminada');
+      } else if (id === 'dupRoutineBtn') {
+        alert('Rutina duplicada');
+      } else if (id === 'saveRoutineBtn') {
+        alert('Rutina guardada');
+      } else if (id === 'exportWhatsappBtn') {
+        alert('Rutina preparada para exportar por WhatsApp');
+      } else if (id === 'settingsBtn') {
+        openSheet('branding');
+      } else {
+        alert('Acción ejecutada');
       }
-    }, 1000);
-    renderTimer();
-
-    pauseBtn.addEventListener('click', () => {
-      running = false;
-      sessionState.textContent = 'Sesión pausada';
-      sessionState.classList.remove('active');
-      sessionState.classList.add('paused');
     });
-    resumeBtn.addEventListener('click', () => {
-      running = true;
-      sessionState.textContent = 'Sesión activa';
-      sessionState.classList.remove('paused');
-      sessionState.classList.add('active');
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if(e.key === 'Escape') closeSheet();
-    });
-  </script>
+  }
+});
+</script>
 </body>
 </html>
