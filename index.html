@@ -337,6 +337,7 @@
   .pulsing { animation: pulse 2s infinite; }
   .accent-glow { box-shadow: 0 0 0 1px rgba(216,255,25,0.9), 0 0 20px var(--accent-glow); }
   .pb-nav { padding-bottom: calc(var(--nav-h) + 16px); }
+  .is-hidden { display: none !important; }
 
   .home-hero {
     position: relative;
@@ -360,59 +361,51 @@
       linear-gradient(90deg, rgba(255,255,255,0.02), transparent 20%, transparent 78%, rgba(255,255,255,0.02));
     pointer-events: none;
   }
-  .hero-figure {
+  .hero-sport-visual {
     position: absolute;
-    right: 26px;
-    bottom: 50px;
-    width: 132px;
-    height: 218px;
-    opacity: .9;
-    filter: blur(.2px);
+    right: 10px;
+    bottom: 34px;
+    width: min(46%, 360px);
+    height: 78%;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    pointer-events: none;
   }
-  .hero-figure::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(209,209,209,.7));
-    clip-path: polygon(44% 0%, 58% 0%, 62% 12%, 76% 20%, 80% 32%, 78% 45%, 74% 57%, 72% 100%, 58% 100%, 55% 64%, 46% 64%, 44% 100%, 30% 100%, 26% 57%, 22% 45%, 20% 32%, 24% 20%, 38% 12%);
-    border-radius: 40px;
-    box-shadow: 0 0 50px rgba(255,255,255,0.1);
+  .hero-sport-visual svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 24px 38px rgba(0,0,0,0.42));
   }
-  .hero-figure::after {
-    content: '';
-    position: absolute;
-    left: 50%; top: 2px; transform: translateX(-50%);
-    width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(180deg, #d7d7d7, #8e8e8e);
-    box-shadow: 0 0 30px rgba(255,255,255,0.08);
+  .hero-sport-visual .athlete-main {
+    fill: url(#athleteFill);
+    opacity: .98;
   }
-  .hero-treadmill {
-    position: absolute;
-    right: 0;
-    bottom: 48px;
-    width: 160px;
-    height: 110px;
+  .hero-sport-visual .athlete-shadow {
+    fill: rgba(0,0,0,0.28);
+    filter: blur(6px);
   }
-  .hero-treadmill::before {
-    content: '';
-    position: absolute;
-    right: 14px; bottom: 0;
-    width: 104px; height: 10px; border-radius: 99px;
-    background: linear-gradient(90deg, rgba(255,255,255,0.08), rgba(255,255,255,0.42));
-    transform: skewX(-22deg);
+  .hero-sport-visual .motion-line {
+    stroke: rgba(216,255,25,0.72);
+    stroke-width: 8;
+    stroke-linecap: round;
   }
-  .hero-treadmill::after {
-    content: '';
-    position: absolute;
-    right: 56px; bottom: 8px;
-    width: 10px; height: 86px; border-radius: 99px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.04));
-    transform: skew(-12deg);
+  .hero-sport-visual .track-line {
+    stroke: rgba(255,255,255,0.22);
+    stroke-width: 10;
+    stroke-linecap: round;
+  }
+  .hero-sport-visual .ball-accent {
+    fill: rgba(216,255,25,0.96);
+    filter: drop-shadow(0 0 22px rgba(216,255,25,0.42));
   }
   .hero-content {
     position: relative;
     z-index: 1;
     padding: 24px 20px 118px;
-    max-width: 58%;
+    max-width: min(56%, 520px);
   }
   .brand-dot { font-size: 15px; font-weight: 900; color: #fff; letter-spacing: -.8px; margin-bottom: 20px; }
   .hero-title { color: #fff; font-size: 32px; line-height: .97; font-weight: 800; letter-spacing: -1.9px; }
@@ -1181,8 +1174,35 @@
         <button class="btn" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.1)" onclick="goTab('rutinas')">Más sobre KINEPRO</button>
       </div>
     </div>
-    <div class="hero-figure"></div>
-    <div class="hero-treadmill"></div>
+    <div class="hero-sport-visual" aria-hidden="true">
+      <svg viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Atleta en movimiento">
+        <defs>
+          <linearGradient id="athleteFill" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="65%" stop-color="#d9d9d9"/>
+            <stop offset="100%" stop-color="#8f8f8f"/>
+          </linearGradient>
+          <radialGradient id="glowBall" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#efff9d" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#d8ff19" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <ellipse class="athlete-shadow" cx="215" cy="318" rx="112" ry="18"/>
+        <circle cx="250" cy="118" r="48" fill="url(#glowBall)" opacity="0.42"/>
+        <path class="track-line" d="M162 306 C214 292, 260 286, 316 294"/>
+        <path class="track-line" d="M264 228 L309 145" opacity="0.75"/>
+        <path class="motion-line" d="M118 128 C95 109, 87 95, 80 78" opacity="0.8"/>
+        <path class="motion-line" d="M105 149 C79 141, 62 136, 42 132" opacity="0.55"/>
+        <path class="motion-line" d="M146 88 C125 68, 115 56, 110 40" opacity="0.42"/>
+        <circle class="athlete-main" cx="164" cy="76" r="26"/>
+        <path class="athlete-main" d="M146 105 C160 97, 183 100, 193 118 L206 143 C211 152, 209 163, 200 168 L176 181 C168 186, 163 193, 160 202 L148 246 C145 258, 132 264, 121 260 C110 257, 104 246, 107 235 L117 194 C121 178, 130 165, 145 157 L163 147 L149 128 C143 120, 140 112, 146 105 Z"/>
+        <path class="athlete-main" d="M197 120 L229 106 C243 100, 255 99, 268 107 L289 120 C300 127, 303 141, 295 151 C288 161, 274 163, 263 156 L247 146 L220 158 Z"/>
+        <path class="athlete-main" d="M158 203 L195 230 C209 240, 215 254, 214 270 L211 314 C210 327, 198 337, 185 336 C172 335, 163 324, 164 312 L166 275 L133 251 C122 243, 119 228, 127 217 C135 206, 149 202, 158 203 Z"/>
+        <path class="athlete-main" d="M121 190 L104 220 C97 233, 95 248, 99 262 L112 307 C116 320, 109 333, 95 337 C82 341, 69 334, 64 321 L49 273 C43 254, 46 233, 56 216 L82 176 Z"/>
+        <path class="athlete-main" d="M276 105 C294 102, 310 117, 310 136 C310 155, 294 170, 274 167 C255 164, 244 149, 247 131 C249 118, 261 108, 276 105 Z" opacity="0.95"/>
+        <circle class="ball-accent" cx="279" cy="136" r="24"/>
+      </svg>
+    </div>
     <div class="hero-float-row">
       <div class="hero-float-card">
         <div class="avatar-stack"><span>AB</span><span>CL</span><span>RS</span></div>
@@ -1363,7 +1383,8 @@
   </div>
 
   <div class="card" style="margin-bottom:12px">
-    <div style="font-size:12px;font-weight:700;color:var(--text2);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px">Panel de inicio</div>
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px"><div style="font-size:12px;font-weight:700;color:var(--text2);letter-spacing:0.5px;text-transform:uppercase">Panel de inicio</div><div class="tag tag-green" style="font-size:10px">Se aplica al instante</div></div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.45">Este panel configura qué se visualiza en Inicio. Cada cambio se refleja de forma inmediata.</div>
     <div id="home-visibility-settings"></div>
   </div>
 
@@ -2380,12 +2401,15 @@ function renderHomeSettings() {
     benefits: 'Bloque final'
   };
   wrap.innerHTML = Object.keys(labels).map(key => `
-    <div class="setting-row" style="padding:12px 0;border-bottom:1px solid var(--border)" onclick="toggleHomeSection('${key}')">
+    <div class="setting-row" style="padding:14px 0;border-bottom:1px solid var(--border)" onclick="toggleHomeSection('${key}')">
       <div>
         <div class="setting-label">${labels[key]}</div>
-        <div class="setting-sub">Mostrar u ocultar en el panel de inicio</div>
+        <div class="setting-sub">${state.homeVisibility[key] ? 'Visible en Inicio' : 'Oculto en Inicio'}</div>
       </div>
-      <div class="toggle-switch ${state.homeVisibility[key] ? 'on' : ''}"></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:11px;font-weight:700;color:${state.homeVisibility[key] ? 'var(--accent)' : 'var(--text3)'};letter-spacing:.4px;text-transform:uppercase">${state.homeVisibility[key] ? 'Visible' : 'Oculto'}</span>
+        <div class="toggle-switch ${state.homeVisibility[key] ? 'on' : ''}"></div>
+      </div>
     </div>
   `).join('');
 }
@@ -2394,6 +2418,7 @@ function toggleHomeSection(key) {
   state.homeVisibility[key] = !state.homeVisibility[key];
   renderHomeSettings();
   applyHomeVisibility();
+  persistUIState();
 }
 
 function applyHomeVisibility() {
@@ -2403,11 +2428,40 @@ function applyHomeVisibility() {
   });
 }
 
+
+function persistUIState() {
+  try {
+    localStorage.setItem('kinepro_ui_state', JSON.stringify({
+      profName: state.profName,
+      theme: state.theme,
+      accent: state.accent,
+      accent2: state.accent2,
+      homeVisibility: state.homeVisibility,
+    }));
+  } catch (err) {}
+}
+
+function restoreUIState() {
+  try {
+    const raw = localStorage.getItem('kinepro_ui_state');
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    if (saved.profName) state.profName = saved.profName;
+    if (saved.theme) state.theme = saved.theme;
+    if (saved.accent) state.accent = saved.accent;
+    if (saved.accent2) state.accent2 = saved.accent2;
+    if (saved.homeVisibility && typeof saved.homeVisibility === 'object') {
+      state.homeVisibility = { ...state.homeVisibility, ...saved.homeVisibility };
+    }
+  } catch (err) {}
+}
+
 function saveProfName() {
   const name = document.getElementById('prof-name-input').value.trim();
   if (!name) return;
   state.profName = name;
   renderHome();
+  persistUIState();
 }
 function setTheme(t) {
   state.theme = t;
@@ -2416,15 +2470,19 @@ function setTheme(t) {
   document.getElementById('theme-dark-btn').classList.toggle('btn-ghost', t !== 'dark');
   document.getElementById('theme-light-btn').classList.toggle('btn-primary', t === 'light');
   document.getElementById('theme-light-btn').classList.toggle('btn-ghost', t !== 'light');
+  persistUIState();
 }
 function setAccent(el) {
   document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
   el.classList.add('selected');
   const color = el.dataset.color;
   const color2 = el.dataset.color2;
+  state.accent = color;
+  state.accent2 = color2;
   document.documentElement.style.setProperty('--accent', color);
   document.documentElement.style.setProperty('--accent2', color2);
   document.documentElement.style.setProperty('--accent-glow', color + '30');
+  persistUIState();
 }
 
 // ==================== BADGES ====================
@@ -2437,14 +2495,18 @@ function updateBadges() {
 
 // ==================== INIT ====================
 function init() {
+  restoreUIState();
   renderHome();
   renderRoutines();
   renderPatients();
   renderLibraryFilters();
   renderLibrary();
   renderHomeSettings();
-  setTheme('dark');
+  setTheme(state.theme || 'dark');
   setRoutineType('routine');
+  const activeSwatch = document.querySelector(`.color-swatch[data-color="${state.accent}"]`) || document.querySelector('.color-swatch');
+  if (activeSwatch) setAccent(activeSwatch);
+  applyHomeVisibility();
   // Update greeting date
   const now = new Date();
   const opts = { weekday: 'long', day: 'numeric', month: 'long' };
