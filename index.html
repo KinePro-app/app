@@ -4623,10 +4623,72 @@ function routineCardHTML(r, showActions = false) {
     ${showActions ? `<div class="routine-actions">
       ${r.type === 'routine' && r.patientId ? `<button class="btn btn-primary btn-sm" onclick="startSessionFromRoutine(${r.id})">▶ Iniciar</button>` : ''}
       ${r.type === 'template' ? `<button class="btn btn-ghost btn-sm" onclick="duplicateFromTemplate(${r.id})">Usar plantilla</button>` : ''}
+      <button class="btn btn-ghost btn-sm" onclick="printRoutinePDF(${r.id})">🖨</button>
       <button class="btn btn-ghost btn-sm" onclick="editRoutine(${r.id})">✏️</button>
       <button class="btn btn-danger btn-sm" onclick="deleteRoutine(${r.id})">🗑</button>
     </div>` : ''}
   </div>`;
+}
+
+
+function printRoutinePDF(id) {
+  const r = state.routines.find(item => item.id === id);
+  if (!r) return;
+  const p = state.patients.find(item => item.id === r.patientId);
+  const win = window.open('', '_blank');
+  if (!win) {
+    alert('Tu navegador bloqueó la ventana de impresión.');
+    return;
+  }
+  const routineTitle = escapeHtml(r.name || 'Rutina');
+  const patientName = escapeHtml(p ? p.name : 'Sin paciente');
+  const obs = escapeHtml(r.obs || '');
+  const dateText = escapeHtml(r.date || new Date().toISOString().split('T')[0]);
+  const exercises = (r.exercises || []).map((ex, index) => `
+    <tr>
+      <td>${index + 1}</td>
+      <td>${escapeHtml(ex.name || '')}</td>
+      <td>${escapeHtml(ex.category || '')}</td>
+      <td>${escapeHtml(ex.prescription || '')}</td>
+    </tr>
+  `).join('');
+  win.document.write(`<!DOCTYPE html>
+  <html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <title>${routineTitle}</title>
+    <style>
+      body{font-family:Arial,sans-serif;padding:32px;color:#111}
+      h1{font-size:28px;margin:0 0 10px}
+      .meta{margin:0 0 24px;font-size:14px;color:#444;line-height:1.6}
+      table{width:100%;border-collapse:collapse;margin-top:16px}
+      th,td{border:1px solid #ddd;padding:10px;text-align:left;font-size:13px;vertical-align:top}
+      th{background:#f3f3f3}
+      .obs{margin-top:18px;padding:12px;border:1px solid #ddd;border-radius:8px;background:#fafafa}
+    </style>
+  </head>
+  <body>
+    <h1>${routineTitle}</h1>
+    <div class="meta"><strong>Paciente:</strong> ${patientName}<br><strong>Tipo:</strong> ${escapeHtml(r.type === 'template' ? 'Plantilla' : 'Rutina')}<br><strong>Fecha:</strong> ${dateText}</div>
+    <table>
+      <thead><tr><th>#</th><th>Ejercicio</th><th>Categoría</th><th>Prescripción</th></tr></thead>
+      <tbody>${exercises || '<tr><td colspan="4">Sin ejercicios cargados</td></tr>'}</tbody>
+    </table>
+    ${obs ? `<div class="obs"><strong>Observaciones:</strong><br>${obs.replace(/
+/g,'<br>')}</div>` : ''}
+    <script>window.onload = () => { window.print(); }<\/script>
+  </body>
+  </html>`);
+  win.document.close();
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function setRoutineType(type) {
@@ -5354,6 +5416,8 @@ let cloudSaveTimer = null;
 let lastCloudWrite = 0;
 let cloudBootstrapDone = false;
 const CLOUD_INSTALLATION_KEY = 'kinepro_installation_id';
+const CLOUD_SHARED_DOC_KEY = 'kinepro_shared_workspace';
+const DEFAULT_SHARED_WORKSPACE = 'principal';
 
 function getInstallationId() {
   try {
@@ -5364,6 +5428,18 @@ function getInstallationId() {
     return generated;
   } catch (err) {
     return 'kp_fallback_single_device';
+  }
+}
+
+
+function getSharedWorkspaceId() {
+  try {
+    const saved = localStorage.getItem(CLOUD_SHARED_DOC_KEY);
+    if (saved && String(saved).trim()) return String(saved).trim();
+    localStorage.setItem(CLOUD_SHARED_DOC_KEY, DEFAULT_SHARED_WORKSPACE);
+    return DEFAULT_SHARED_WORKSPACE;
+  } catch (err) {
+    return DEFAULT_SHARED_WORKSPACE;
   }
 }
 
@@ -5448,7 +5524,8 @@ function queueCloudSave(force = false) {
       await cloudDoc.set({
         state: getSerializableState(),
         updatedAt,
-        installationId: getInstallationId()
+        workspaceId: getSharedWorkspaceId(),
+        lastEditorInstallationId: getInstallationId()
       }, { merge: true });
     } catch (err) {
       console.error('Error al guardar en Firebase', err);
@@ -5480,8 +5557,8 @@ function initFirebaseSync() {
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     cloudDb = firebase.firestore();
 
-    const installationId = getInstallationId();
-    cloudDoc = cloudDb.collection('apps').doc('kinepro_main').collection('installations').doc(installationId);
+    const workspaceId = getSharedWorkspaceId();
+    cloudDoc = cloudDb.collection('apps').doc('kinepro_main').collection('workspaces').doc(workspaceId);
     cloudReady = true;
 
     cloudDoc.onSnapshot((snap) => {
