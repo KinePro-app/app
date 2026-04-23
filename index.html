@@ -4674,8 +4674,7 @@ function printRoutinePDF(id) {
       <thead><tr><th>#</th><th>Ejercicio</th><th>Categoría</th><th>Prescripción</th></tr></thead>
       <tbody>${exercises || '<tr><td colspan="4">Sin ejercicios cargados</td></tr>'}</tbody>
     </table>
-    ${obs ? `<div class="obs"><strong>Observaciones:</strong><br>${obs.replace(/
-/g,'<br>')}</div>` : ''}
+    ${obs ? `<div class="obs"><strong>Observaciones:</strong><br>${obs.replace(/\n/g,'<br>')}</div>` : ''}
     <script>window.onload = () => { window.print(); }<\/script>
   </body>
   </html>`);
