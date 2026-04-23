@@ -5345,12 +5345,27 @@ const firebaseConfig = {
   appId: "1:126558895981:web:64cfdc294935272861e464"
 };
 
+
 let cloudDb = null;
 let cloudDoc = null;
 let cloudReady = false;
 let cloudApplying = false;
 let cloudSaveTimer = null;
 let lastCloudWrite = 0;
+let cloudBootstrapDone = false;
+const CLOUD_INSTALLATION_KEY = 'kinepro_installation_id';
+
+function getInstallationId() {
+  try {
+    let saved = localStorage.getItem(CLOUD_INSTALLATION_KEY);
+    if (saved) return saved;
+    const generated = 'kp_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+    localStorage.setItem(CLOUD_INSTALLATION_KEY, generated);
+    return generated;
+  } catch (err) {
+    return 'kp_fallback_single_device';
+  }
+}
 
 function getSerializableState() {
   return {
@@ -5419,24 +5434,26 @@ function restoreLocalAppState() {
   } catch (err) {}
 }
 
-function queueCloudSave() {
+function queueCloudSave(force = false) {
   if (cloudApplying) return;
   if (!state.localUpdatedAt) markLocalUpdate();
   persistLocalAppState();
-  if (!cloudReady || !cloudDoc) return;
+  if (!cloudReady || !cloudDoc || !cloudBootstrapDone) return;
   clearTimeout(cloudSaveTimer);
   cloudSaveTimer = setTimeout(async () => {
     try {
-      const updatedAt = state.localUpdatedAt || Date.now();
+      const updatedAt = force ? Date.now() : (state.localUpdatedAt || Date.now());
+      if (force) state.localUpdatedAt = updatedAt;
       lastCloudWrite = updatedAt;
       await cloudDoc.set({
         state: getSerializableState(),
-        updatedAt
+        updatedAt,
+        installationId: getInstallationId()
       }, { merge: true });
     } catch (err) {
       console.error('Error al guardar en Firebase', err);
     }
-  }, 350);
+  }, force ? 0 : 350);
 }
 
 function rerenderAll() {
@@ -5460,27 +5477,49 @@ function rerenderAll() {
 function initFirebaseSync() {
   try {
     if (!window.firebase) return;
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     cloudDb = firebase.firestore();
-    cloudDoc = cloudDb.collection('apps').doc('kinepro_main');
+
+    const installationId = getInstallationId();
+    cloudDoc = cloudDb.collection('apps').doc('kinepro_main').collection('installations').doc(installationId);
     cloudReady = true;
+
     cloudDoc.onSnapshot((snap) => {
       const data = snap.data();
-      if (!data || !data.state) return;
-      if (data.updatedAt && data.updatedAt === lastCloudWrite) return;
-      const incomingVersion = data.state && typeof data.state.localUpdatedAt === 'number' ? data.state.localUpdatedAt : (data.updatedAt || 0);
+
+      if (!snap.exists || !data || !data.state) {
+        cloudBootstrapDone = true;
+        queueCloudSave(true);
+        return;
+      }
+
+      const incomingVersion = data.state && typeof data.state.localUpdatedAt === 'number'
+        ? data.state.localUpdatedAt
+        : (data.updatedAt || 0);
+
       const localVersion = state.localUpdatedAt || 0;
+
+      if (!cloudBootstrapDone) {
+        cloudBootstrapDone = true;
+        if (incomingVersion > localVersion) {
+          applySerializableState(data.state);
+          return;
+        }
+        queueCloudSave(true);
+        return;
+      }
+
+      if (data.updatedAt && data.updatedAt === lastCloudWrite) return;
       if (incomingVersion && localVersion && incomingVersion < localVersion) return;
+
       applySerializableState(data.state);
     }, (err) => {
       console.error('Error de sincronización Firebase', err);
     });
-    queueCloudSave();
   } catch (err) {
     console.error('No se pudo iniciar Firebase', err);
   }
 }
-
 // ==================== INIT ====================
 function init() {
   restoreUIState();
